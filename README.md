@@ -1,4 +1,4 @@
-# Amethyst-Template
+# TMI-Bedrock
 
 Opinionated template for an Amethyst Mod, will be the base mod used in all amethyst guides! Follow the steps below to build the mod
 
@@ -7,7 +7,7 @@ Opinionated template for an Amethyst Mod, will be the base mod used in all ameth
 1. Open `xmake.lua` and configure the mod options:
 ```
 -- Mod Options
-local mod_name = "Amethyst-Template" -- Replace with the name of your mod
+local mod_name = "TMI-Bedrock" -- Replace with the name of your mod
 ```
 
 2. Open `data/packs/RP/manifest.json` and replace the name, and generate the two new UUIDv4s [here](https://www.uuidgenerator.net/version4)
@@ -15,14 +15,14 @@ local mod_name = "Amethyst-Template" -- Replace with the name of your mod
 3. Open `.github/build.yml` and replace the mod name
 ```
 env:
-    MOD_NAME: Amethyst-Template # Replace with your mod name
+    MOD_NAME: TMI-Bedrock # Replace with your mod name
 ```
 
 4. Open `mod.json` and fill in all the mod options there too.
 ```
 {
     "meta": {
-        "name": "Amethyst-Template",
+        "name": "TMI-Bedrock",
         "version": "1.0.0",
         "namespace": "amethyst_template",
         "author": "FrederoxDev"

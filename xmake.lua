@@ -1,5 +1,5 @@
 -- Mod Options
-local mod_name = "Amethyst-Template" -- Replace with the name of your mod
+local mod_name = "TMI-Bedrock" -- Replace with the name of your mod
 local targetMajor, targetMinor, targetPatch = 1, 21, 3 -- 1.21.0.3 (Other versions not supported by Amethyst)
 
 option("automated_build")

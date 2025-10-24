@@ -1,11 +1,11 @@
 {
     "format_version": "1.1.0",
     "meta": {
-        "name": "Amethyst-Template",
+        "name": "TMI-Bedrock",
         "version": "0.0.0",
-        "namespace": "amethyst_template",
-        "author": "FrederoxDev",
-        "uuid": "00000000-0000-0000-0000-000000000000",
+        "namespace": "tmi",
+        "author": "Hanprogamer",
+        "uuid": "092cf7f3-3f3a-4f00-acae-257623f246a1",
         "dependencies": [
             {
                 "dependency_uuid": "e56c3987-fd4a-4590-9923-a07fc4be7250",

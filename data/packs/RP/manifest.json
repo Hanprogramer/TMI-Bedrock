@@ -1,9 +1,9 @@
 {
     "format_version": 2,
     "header": {
-        "name": "Amethyst-Template RP",
+        "name": "TMI-Bedrock RP",
         "description": "By FrederoxDev",
-        "uuid": "<replace-with-a-new-uuid>",
+        "uuid": "e520eeab-907c-4e2c-b1cd-d99dcbdfe162",
         "version": [
             1,
             0,
@@ -18,7 +18,7 @@
     "modules": [
         {
             "type": "resources",
-            "uuid": "<replace-with-a-new-uuid>",
+            "uuid": "ee378d57-6581-497a-ad95-3c061dd3221f",
             "version": [
                 1,
                 0,

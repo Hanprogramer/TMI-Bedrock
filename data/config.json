@@ -1,7 +1,7 @@
 {
 	"$schema": "https://raw.githubusercontent.com/Bedrock-OSS/regolith-schemas/main/config/v1.4.json",
 	"author": "FrederoxDev",
-	"name": "Amethyst-Template",
+	"name": "TMI-Bedrock",
 	"packs": {
 		"resourcePack": "./packs/RP",
 		"behaviorPack": "./packs/BP"
@@ -18,10 +18,10 @@
 		"profiles": {
 			"default": {
 				"export": {
-					"bpPath": "%localappdata%/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/amethyst/mods/Amethyst-Template@0.0.0-dev/behavior_packs/main_bp",
+					"bpPath": "%localappdata%/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/amethyst/mods/TMI-Bedrock@0.0.0-dev/behavior_packs/main_bp",
 					"build": "standard",
 					"readOnly": false,
-					"rpPath": "%localappdata%/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/amethyst/mods/Amethyst-Template@0.0.0-dev/resource_packs/main_rp",
+					"rpPath": "%localappdata%/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/amethyst/mods/TMI-Bedrock@0.0.0-dev/resource_packs/main_rp",
 					"target": "exact"
 				},
 				"filters": [
