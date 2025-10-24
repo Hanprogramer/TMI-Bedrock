@@ -1,6 +1,8 @@
 # TMI-Bedrock
 
-Opinionated template for an Amethyst Mod, will be the base mod used in all amethyst guides! Follow the steps below to build the mod
+A mod that gives useful informations about the game, especially for mods
+<img width="1918" height="996" alt="image" src="https://github.com/user-attachments/assets/ebf8cda1-5d31-481a-a8f0-3f9ff810da52" />
+
 
 ## How to configure
 
