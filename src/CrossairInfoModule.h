@@ -20,13 +20,14 @@
 #include <mc/src/common/world/level/block/registry/BlockTypeRegistry.hpp>
 #include <mc/src/common/locale/I18n.hpp>
 #include <mc/src-deps/core/string/StringHash.hpp>
+#include <mc/src-client/common/client/renderer/actor/ItemRenderer.hpp>
 
 #include <algorithm>
 
 namespace CrossairInfoModule
 {
 	void Init();
-	void OnAfterRenderUi(AfterRenderUIEvent event);
+	void OnAfterRenderUi(BeforeRenderUIEvent event);
 	std::string getModNameFromNamespace(std::string mNamespace);
 };
 
