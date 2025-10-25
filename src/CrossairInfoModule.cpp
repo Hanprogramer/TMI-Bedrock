@@ -95,8 +95,7 @@ void CrossairInfoModule::OnAfterRenderUi(BeforeRenderUIEvent event) {
 				y,
 				y + height + padding * 2);
 			backgroundSlice.Draw(bgRect, &texture, &ctx);
-			HashedString flushStringUI(0xA99285D21E94FC80, "ui_flush");
-			ctx.flushImages(mce::Color::WHITE, 1.0f, flushStringUI);
+			ctx.flushImages(mce::Color::WHITE, 1.0f, "ui_flush");
 
 
 
@@ -113,10 +112,10 @@ void CrossairInfoModule::OnAfterRenderUi(BeforeRenderUIEvent event) {
 			float scaleX = 2.6f;
 			mat.scale(scaleX, 1.0f, 1.0f);
 
-			renderCtxPtr.mScreenContext->camera->worldMatrixStack.push(mat);
-			renderCtxPtr.itemRenderer->renderGuiItemNew(&renderCtxPtr, stack, renderCtxPtr.mLastFrameTime, (x + padding) / scaleX - 4, y + padding + 6, false, 1.0f, 1.0f, 0.95f);
-			ctx.flushImages(mce::Color::WHITE, 1.0f, flushStringUI);
-			renderCtxPtr.mScreenContext->camera->worldMatrixStack.pop();
+			//renderCtxPtr.mScreenContext->camera->worldMatrixStack.push(mat);
+			renderCtxPtr.itemRenderer->renderGuiItemNew(&renderCtxPtr, stack, 0, (x + padding) / scaleX - 4, y + padding + 6, false, 1.0f, 1.0f, 0.95f);
+			ctx.flushImages(mce::Color::WHITE, 1.0f, "ui_flush");
+			//renderCtxPtr.mScreenContext->camera->worldMatrixStack.pop();
 			
 
 
