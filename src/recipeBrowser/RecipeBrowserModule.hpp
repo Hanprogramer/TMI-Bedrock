@@ -17,6 +17,9 @@
 #include <mc/src/common/world/item/crafting/Recipes.hpp>
 #include <mc/src/common/world/level/block/registry/BlockTypeRegistry.hpp>
 #include <amethyst/runtime/events/InputEvents.hpp>
+#include <mc/src-client/common/client/gui/screens/SceneStack.hpp>
+#include <mc/src-client/common/client/gui/screens/SceneFactory.hpp>
+
 namespace RecipeBrowserModule {
     void Init();
 }

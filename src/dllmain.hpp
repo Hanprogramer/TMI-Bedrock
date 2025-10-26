@@ -4,8 +4,8 @@
 #include <amethyst/runtime/ModContext.hpp>
 #include <amethyst/runtime/events/GameEvents.hpp> // OnStartJoinGameEvent
 #include "dllmain.hpp"
-#include "CrossairInfoModule.h"
-#include "RecipeBrowserModule.hpp"
+#include "crossairModule/CrossairInfoModule.h"
+#include "recipeBrowser/RecipeBrowserModule.hpp"
 
 #define ModFunction extern "C" __declspec(dllexport)
 

@@ -1,0 +1,106 @@
+{
+    "namespace": "tmi",
+    "simple_panel": {
+        "type": "panel",
+        "size": [
+            "40%",
+            "60%"
+        ],
+        "anchor_from": "center",
+        "anchor_to": "center",
+        "controls": [
+            {
+                "bg": {
+                    "type": "image",
+                    "texture": "textures/ui/dialog_background_opaque",
+                    "size": [
+                        "100%",
+                        "100%"
+                    ],
+                    "keep_ratio": false,
+                    "fill": true,
+                    "nineslice_size": 8
+                }
+            },
+            {
+                "title": {
+                    "type": "label",
+                    "text": "#text",
+                    "font_size": "medium",
+                    "color": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "shadow": true,
+                    "anchor_from": "top_middle",
+                    "anchor_to": "top_middle",
+                    "offset": [
+                        0,
+                        12
+                    ],
+                    "bindings": [
+                        {
+                            "binding_name": "#title_text",
+                            "binding_name_override": "#text",
+                            "binding_condition": "always_when_visible"
+                        }
+                    ]
+                }
+            },
+            {
+                "close@common_buttons.light_text_button": {
+                    "size": [
+                        18,
+                        18
+                    ],
+                    "$button_text": "x",
+                    "$pressed_button_name": "button.menu_exit",
+                    "anchor_from": "top_right",
+                    "anchor_to": "top_right",
+                    "offset": [
+                        -6,
+                        6
+                    ]
+                }
+            }
+        ]
+    },
+    "recipe_screen": {
+        "type": "screen",
+        "is_modal": true,
+        "force_render_below": true,
+        "absorbs_input": true,
+        "is_showing_menu": true,
+        "button_mappings": [
+            {
+                "from_button_id": "button.menu_cancel",
+                "to_button_id": "button.menu_exit",
+                "mapping_type": "global"
+            }
+        ],
+        "controls": [
+            {
+                "modal_bg": {
+                    "type": "image",
+                    "texture": "textures/ui/Black",
+                    "alpha": 0.55,
+                    "size": [
+                        "100%",
+                        "100%"
+                    ],
+                    "anchor_from": "top_left",
+                    "anchor_to": "top_left",
+                    "keep_ratio": false,
+                    "fill": true,
+                    "layer": 0
+                }
+            },
+            {
+                "content@tmi.simple_panel": {
+                    "layer": 1
+                }
+            }
+        ]
+    }
+}

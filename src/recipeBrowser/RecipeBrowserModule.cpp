@@ -1,13 +1,26 @@
 #include "RecipeBrowserModule.hpp"
 #include <amethyst/ui/NinesliceHelper.hpp>
 #include <mc/src/common/locale/I18n.hpp>
+#include <mc/src-client/common/client/gui/screens/SceneCreationUtils.hpp>
+#include <mc/src-client/common/client/gui/screens/models/ClientInstanceScreenModel.hpp>
+#include <mc/src-client/common/client/gui/screens/controllers/ContainerScreenController.hpp>
+#include "RecipeBrowserScreenController.hpp"
+#include <mc/src/common/network/packet/InventoryContentPacket.hpp>
 
+using namespace TMI;
 bool initialized = false;
+
 std::map<std::string, ItemStack> itemMap;
 int itemCount = 0;
 int mposX = 0;
 int mposY = 0;
+boolean isMousePressed = false;
+boolean isMouseJustReleased = false;
 
+const char BUTTON_LEFT = 0x263b;
+const char BUTTON_RIGHT = 0x263a;
+
+char last_button;
 
 std::string getModNameFromNamespace(std::string mNamespace) {
 	std::string itemNamespace = mNamespace;
@@ -40,6 +53,14 @@ std::string getModNameFromNamespace(std::string mNamespace) {
 	return modName;
 }
 
+std::string getItemName(Item* item) {
+	auto& i18n = getI18n();
+	auto isItem = item->getLegacyBlock() == nullptr;
+	std::string langKey = (isItem ? "item." : "tile.") +
+		item->mRawNameId.getString() + ".name";
+	return i18n.get(langKey, nullptr);
+}
+
 void drawFakeTooltip(ItemStack stack, MinecraftUIRenderContext& ctx) {
 	// Draw the background
 	ClientInstance& mc = *Amethyst::GetClientCtx().mClientInstance;
@@ -48,18 +69,13 @@ void drawFakeTooltip(ItemStack stack, MinecraftUIRenderContext& ctx) {
 	auto fontHandlePtr = Bedrock::NonOwnerPointer<const FontHandle>(&ctx.mDebugTextFontHandle);
 
 	Item* item = stack.getItem();
-	auto& i18n = getI18n();
-	auto isItem = item->getLegacyBlock() == nullptr;
-	std::string langKey = (isItem? "item." : "tile.") + 
-		item->mRawNameId.getString() + ".name";
-	std::string translated = i18n.get(langKey, nullptr);
 	std::string subtitleStr = std::string("§o");
 	std::string mNamespace = getModNameFromNamespace(item->mNamespace);
 	const int padding = 4;
 	const int maxWidth = 200;
 	const int maxHeight = 100;
 	subtitleStr.append(mNamespace);
-	const char* title = translated.c_str();
+	const char* title = getItemName(item).c_str();
 	const char* subtitle = subtitleStr.c_str();
 
 
@@ -164,6 +180,44 @@ void OnAfterRenderUI(AfterRenderUIEvent event)
 				ctx.fillRectangle(RectangleArea(xx, xx + width, yy, yy + height), mce::Color(1.0f, 1.0f, 1.0f, 0.5f), 0.5f);
 				hovered = i;
 				hoveredID = key;
+				if (isMouseJustReleased) {
+					Log::Info("Pressed: {}", stack.getItem()->mDescriptionId);
+					// Open the screen
+					// mc->mSceneFactory->createUIScene(*ctx.mClient->mMinecraftGame, *ctx.mClient, "", *event.ctx.mCurrentScene)
+					// mc->mSceneStack->pushScreen();
+
+					bool isClientSide = true; // only runs on client side
+					auto& clientInstance = *Amethyst::GetClientCtx().mClientInstance;
+					auto& game = *clientInstance.mMinecraftGame;
+					if (isClientSide) {
+						auto& factory = *clientInstance.mSceneFactory;
+						auto model = SceneCreationUtils::_createModel<ClientInstanceScreenModel>(
+							factory,
+							game,
+							clientInstance,
+							factory.mAdvancedGraphicOptions
+						);
+						auto controller = std::make_shared<RecipeBrowserScreenController>(model);
+						auto item = stack.getItem();
+						controller->bindString("#title_text", [item]() { return getItemName(item);  }, []() { return true; });
+
+						auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
+						auto screen = factory._createScreen(scene);
+						factory.getCurrentSceneStack()->pushScreen(screen, false);
+					}
+					else {
+						//auto& minecraft = *Amethyst::GetServerCtx().mMinecraft;
+						//ServerPlayer& serverPlayer = static_cast<ServerPlayer&>(player);
+						//auto id = serverPlayer.nextContainerId();
+						//auto containerManager = std::make_shared<RecipeBrowserScreenController>(id, player);
+						//containerManager->postInit();
+						//serverPlayer.setContainerManagerModel(containerManager);
+						//ContainerOpenPacket packet(containerManager->getContainerId(), containerManager->getContainerType(), BlockPos(0, 0, 0), player.getUniqueID());
+						//serverPlayer.sendNetworkPacket(packet);
+						//InventoryContentPacket invPacket = InventoryContentPacket::fromPlayerInventoryId(containerManager->getContainerId(), serverPlayer);
+						//serverPlayer.sendNetworkPacket(invPacket);
+					}
+				}
 			}
 			renderCtxPtr.itemRenderer->renderGuiItemNew(&renderCtxPtr, &stack, 0, xx + 2, yy + 2, false, 1.0f, 1.0f, 0.95f);
 			x++;
@@ -180,24 +234,23 @@ void OnAfterRenderUI(AfterRenderUIEvent event)
 			drawFakeTooltip(itemMap.at(hoveredID), ctx);
 			ctx.flushImages(mce::Color::WHITE, 1.0f, "ui_flush");
 		}
-
-		//std::weak_ptr<BlockTypeRegistry> blockRegistryPtr = mc->getLocalPlayer()->getLevel()->getBlockRegistry();
-		//if (std::shared_ptr<BlockTypeRegistry> blockRegistry = blockRegistryPtr.lock()) {
-		//	BlockTypeRegistry& registry = *blockRegistry;
-
-		//	// Create the itemstack
-		//	//Log::Info("{}", ((uintptr_t)&ItemStack::EMPTY_ITEM) - GetMinecraftBaseAddress());
-		//	//BlockLegacy& block = *registry.mBlockLookupMap["minecraft:stone"];
-		//	//Item& item = *itemRegistry.mNameToItemMap["minecraft:iron_hoe"]; // IRON HOE
-
-
-		//}
 	}
+	isMouseJustReleased = false;
 }
 
 void OnMouseInput(MouseInputEvent event) {
 	mposX = event.x;
 	mposY = event.y;
+	boolean isPressed = !event.mButtonData == char();
+
+	if (!isPressed && isMousePressed) {
+		isMouseJustReleased = true;
+	}
+
+	last_button = event.mActionButtonId;
+	isMousePressed = isPressed;
+
+	//Log::Info("buttonData: {}, actionButtonId: {}", event.mButtonData, event.mActionButtonId);
 }
 
 void RecipeBrowserModule::Init()
