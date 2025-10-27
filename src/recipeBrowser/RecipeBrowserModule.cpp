@@ -168,45 +168,26 @@ namespace TMI {
 					hoveredID = key;
 					currentHoveredStack = stack;
 					if (isMouseJustReleased) {
-						Log::Info("Pressed: {}", stack.getItem()->mDescriptionId);
 						// Open the screen
-						// mc->mSceneFactory->createUIScene(*ctx.mClient->mMinecraftGame, *ctx.mClient, "", *event.ctx.mCurrentScene)
-						// mc->mSceneStack->pushScreen();
-
-						bool isClientSide = true; // only runs on client side
 						auto& clientInstance = *Amethyst::GetClientCtx().mClientInstance;
 						auto& game = *clientInstance.mMinecraftGame;
-						if (isClientSide) {
-							auto& factory = *clientInstance.mSceneFactory;
-							auto model = SceneCreationUtils::_createModel<ClientInstanceScreenModel>(
-								factory,
-								game,
-								clientInstance,
-								factory.mAdvancedGraphicOptions
-							);
-							auto interactionModel = ContainerScreenController::interactionModelFromUIProfile(model->getUIProfile());
-							auto& item = *stack.getItem();
-							if (TMI::setRecipesForItem(item)) {
-								ItemStack clone = ItemStack(stack);
-								ItemStack& cloneAddr = clone;
-								auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, cloneAddr);
+						auto& factory = *clientInstance.mSceneFactory;
+						auto model = SceneCreationUtils::_createModel<ClientInstanceScreenModel>(
+							factory,
+							game,
+							clientInstance,
+							factory.mAdvancedGraphicOptions
+						);
+						auto interactionModel = ContainerScreenController::interactionModelFromUIProfile(model->getUIProfile());
+						auto& item = *stack.getItem();
+						if (TMI::setRecipesForItem(item)) {
+							ItemStack clone = ItemStack(stack);
+							ItemStack& cloneAddr = clone;
+							auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, cloneAddr);
 
-								auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
-								auto screen = factory._createScreen(scene);
-								factory.getCurrentSceneStack()->pushScreen(screen, false);
-							}
-						}
-						else {
-							//auto& minecraft = *Amethyst::GetServerCtx().mMinecraft;
-							//ServerPlayer& serverPlayer = static_cast<ServerPlayer&>(player);
-							//auto id = serverPlayer.nextContainerId();
-							//auto containerManager = std::make_shared<RecipeBrowserScreenController>(id, player);
-							//containerManager->postInit();
-							//serverPlayer.setContainerManagerModel(containerManager);
-							//ContainerOpenPacket packet(containerManager->getContainerId(), containerManager->getContainerType(), BlockPos(0, 0, 0), player.getUniqueID());
-							//serverPlayer.sendNetworkPacket(packet);
-							//InventoryContentPacket invPacket = InventoryContentPacket::fromPlayerInventoryId(containerManager->getContainerId(), serverPlayer);
-							//serverPlayer.sendNetworkPacket(invPacket);
+							auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
+							auto screen = factory._createScreen(scene);
+							factory.getCurrentSceneStack()->pushScreen(screen, false);
 						}
 					}
 				}
