@@ -279,7 +279,7 @@ namespace TMI {
 		}
 
 		currentPage = 0;
-		maxPage = (int)(recipes.size() / 2.0);
+		maxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
 
 		return recipes.size() > 0;
 	}

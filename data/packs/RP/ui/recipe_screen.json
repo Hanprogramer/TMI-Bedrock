@@ -4,7 +4,7 @@
         "type": "panel",
         "size": [
             180,
-            "60%"
+            180
         ],
         "anchor_from": "center",
         "anchor_to": "center",
@@ -37,12 +37,39 @@
                     "anchor_to": "top_middle",
                     "offset": [
                         0,
-                        12
+                        6
                     ],
                     "layer": 1,
                     "bindings": [
                         {
                             "binding_name": "#title_text",
+                            "binding_name_override": "#text",
+                            "binding_condition": "always_when_visible"
+                        }
+                    ]
+                }
+            },
+            {
+                "page_text": {
+                    "type": "label",
+                    "text": "#text",
+                    "font_size": "medium",
+                    "color": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "shadow": true,
+                    "anchor_from": "bottom_middle",
+                    "anchor_to": "bottom_middle",
+                    "offset": [
+                        0,
+                        -6
+                    ],
+                    "layer": 1,
+                    "bindings": [
+                        {
+                            "binding_name": "#page_text",
                             "binding_name_override": "#text",
                             "binding_condition": "always_when_visible"
                         }
@@ -65,6 +92,52 @@
                         6
                     ],
                     "layer": 2
+                }
+            },
+            {
+                "prevBtn@common_buttons.light_text_button": {
+                    "$button_text": "<",
+                    "$pressed_button_name": "tmi_prev",
+                    "size": [
+                        18,
+                        18
+                    ],
+                    "anchor_from": "left_middle",
+                    "anchor_to": "left_middle",
+                    "offset": [
+                        6,
+                        0
+                    ],
+                    "layer": 2,
+                    "bindings": [
+                        {
+                            "binding_name": "#prevBtnVisible",
+                            "binding_name_override": "#visible"
+                        }
+                    ]
+                }
+            },
+            {
+                "nextBtn@common_buttons.light_text_button": {
+                    "$button_text": ">",
+                    "$pressed_button_name": "tmi_next",
+                    "size": [
+                        18,
+                        18
+                    ],
+                    "anchor_from": "right_middle",
+                    "anchor_to": "right_middle",
+                    "offset": [
+                        -6,
+                        0
+                    ],
+                    "layer": 2,
+                    "bindings": [
+                        {
+                            "binding_name": "#nextBtnVisible",
+                            "binding_name_override": "#visible"
+                        }
+                    ]
                 }
             },
             // Content area holding the 3x3 grid, arrow and output slot
@@ -303,6 +376,12 @@
                                             ]
                                         }
                                     }
+                                ],
+                                "bindings": [
+                                    {
+                                        "binding_name": "#recipe2visible",
+                                        "binding_name_override": "#visible"
+                                    }
                                 ]
                             }
                         }
@@ -322,7 +401,30 @@
         "$tmi_is_result_slot": false,
         "controls": [
             {
-                "slot_bg@tmi.slot_button_bg": {}
+                "slot_bg@tmi.slot_button_bg": {
+                    "$pressed_button_name": "tmi_slot_pressed",
+                    "property_bag": {
+                        "#tmi_recipe_index": "$tmi_recipe_index",
+                        "#tmi_slot_id": "$tmi_slot_id",
+                        "#tmi_is_result_slot": "$tmi_is_result_slot"
+                    },
+                    "bindings": [
+                        {
+                            "binding_type": "collection_details",
+                            "binding_collection_name": "container_items"
+                        },
+                        {
+                            "binding_name": "#collection_index",
+                            "binding_type": "collection",
+                            "binding_collection_name": "container_items"
+                        },
+                        {
+                            "binding_type": "view",
+                            "source_property_name": "#collection_index",
+                            "target_property_name": "#tmi_slot_id"
+                        }
+                    ]
+                }
             },
             {
                 "0": {
@@ -335,7 +437,6 @@
                     "layer": 3,
                     "$cell_index": "#tmi_slot_id",
                     "property_bag": {
-                        // This is the code I read from C++
                         "#tmi_recipe_index": "$tmi_recipe_index",
                         "#tmi_slot_id": "$tmi_slot_id",
                         "#tmi_is_result_slot": "$tmi_is_result_slot"

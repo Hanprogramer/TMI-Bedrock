@@ -35,7 +35,15 @@ namespace TMI {
 					BaseActorRenderContext renderCtx(*ctx.mScreenContext, client, *client.mMinecraftGame);
 					int yOffset = stack.getItem()->getIconYOffset();
 
+					// TODO: trying to fix fence block not rendering
+					/*if (stack.getItem()->getLegacyBlock() != nullptr) {
+						const BlockLegacy& renderBlock = *stack.getLegacyBlock()->getRenderBlock().mLegacyBlock;
+						stack.reinit(renderBlock, 1);
+						stack.mShowPickup = false;
+					}*/
+
 					renderCtx.itemRenderer->renderGuiItemNew(&renderCtx, &stack, 0, pos.x + 1.0f, pos.y - yOffset + 1.0f, false, 1.0f, mPropagatedAlpha, 1.0f);
+
 					mce::Color color(1.0f, 1.0f, 1.0f, mPropagatedAlpha);
 					ctx.flushImages(color, 1.0f, "ui_flush");
 
@@ -105,6 +113,14 @@ namespace TMI {
 		_registerBindings();
 	}
 
+
+	static void refreshPage() {
+		if (TMI::currentPage < 0)
+			TMI::currentPage = TMI::maxPage;
+		if (TMI::currentPage > TMI::maxPage)
+			TMI::currentPage = 0;
+	}
+
 	void RecipeBrowserScreenController::_registerBindings()
 	{
 
@@ -113,6 +129,31 @@ namespace TMI {
 			Item& item = *mItemStack.getItem();
 			return item.buildDescriptionName(mItemStack);
 			}, []() { return true; });
+
+		bindString("#page_text", [this]() {
+			return std::format("{}/{}", TMI::currentPage + 1, TMI::maxPage + 1);
+			}, []() { return true; });
+
+		bindBool("#recipe2visible", [this]() {
+			if (TMI::currentPage == TMI::maxPage && TMI::recipeCount() % 2 != 0) {
+				return false;
+			}
+			return true;
+			}, []() {return true; });
+
+		bindBool("#prevBtnVisible", [this]() {
+			if (TMI::currentPage == 0 || TMI::maxPage == 0) {
+				return false;
+			}
+			return true;
+			}, []() {return true; });
+
+		bindBool("#nextBtnVisible", [this]() {
+			if (TMI::currentPage == TMI::maxPage || TMI::maxPage == 0) {
+				return false;
+			}
+			return true;
+			}, []() {return true; });
 
 		this->registerButtonInteractedHandler(StringToNameId("tmi_close_modal"), [this](UIPropertyBag* props) {
 			auto& clientInstance = *Amethyst::GetClientCtx().mClientInstance;
@@ -123,5 +164,35 @@ namespace TMI {
 			return ui::ViewRequest::Exit;
 			});
 
+		this->registerButtonInteractedHandler(StringToNameId("tmi_slot_pressed"), [this](UIPropertyBag* mPropertyBag) {
+			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
+				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt();
+				auto recipe_index = mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt() + (TMI::currentPage * 2) - 1;
+				auto isResultSlot = mPropertyBag->mJsonValue.get("#tmi_is_result_slot", Json::Value(false)).asBool();
+
+				if (id > -1 && recipe_index > -1 && recipe_index < TMI::recipeCount()) {
+					ItemStack stack;
+					if (isResultSlot) {
+						stack = TMI::getResult(recipe_index);
+					}
+					else {
+						stack = TMI::getCraftingIngredient(id, recipe_index);
+					}
+
+					TMI::setRecipesForItem(*stack.getItem());
+				}
+			}
+			return ui::ViewRequest::Refresh;
+			});
+		this->registerButtonInteractedHandler(StringToNameId("tmi_prev"), [this](UIPropertyBag* props) {
+			TMI::currentPage--;
+			refreshPage();
+			return ui::ViewRequest::Refresh;
+			});
+		this->registerButtonInteractedHandler(StringToNameId("tmi_next"), [this](UIPropertyBag* props) {
+			TMI::currentPage++;
+			refreshPage();
+			return ui::ViewRequest::Refresh;
+			});
 	}
 }
