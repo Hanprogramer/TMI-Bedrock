@@ -244,7 +244,7 @@
                                                         "type": "panel",
                                                         "controls": [
                                                             {
-                                                                "output_slot@tmi.slot_item_template": {
+                                                                "output_slot@tmi_common.slot_item_template": {
                                                                     "offset": [
                                                                         10,
                                                                         -7
@@ -358,7 +358,7 @@
                                                         "type": "panel",
                                                         "controls": [
                                                             {
-                                                                "output_slot@tmi.slot_item_template": {
+                                                                "output_slot@tmi_common.slot_item_template": {
                                                                     "offset": [
                                                                         10,
                                                                         -7
@@ -390,114 +390,6 @@
             }
         ]
     },
-    "slot_button": {
-        "type": "panel",
-        "size": [
-            18,
-            18
-        ],
-        "$tmi_recipe_index|default": -1,
-        "$tmi_slot_id|default": -1,
-        "$tmi_is_result_slot": false,
-        "controls": [
-            {
-                "slot_bg@tmi.slot_button_bg": {
-                    "$pressed_button_name": "tmi_slot_pressed",
-                    "property_bag": {
-                        "#tmi_recipe_index": "$tmi_recipe_index",
-                        "#tmi_slot_id": "$tmi_slot_id",
-                        "#tmi_is_result_slot": "$tmi_is_result_slot"
-                    },
-                    "bindings": [
-                        {
-                            "binding_type": "collection_details",
-                            "binding_collection_name": "container_items"
-                        },
-                        {
-                            "binding_name": "#collection_index",
-                            "binding_type": "collection",
-                            "binding_collection_name": "container_items"
-                        },
-                        {
-                            "binding_type": "view",
-                            "source_property_name": "#collection_index",
-                            "target_property_name": "#tmi_slot_id"
-                        }
-                    ],
-                    "button_mappings": [
-                        // Trigger this button if it's right clicked
-                        {
-                            "from_button_id": "button.menu_secondary_select",
-                            "to_button_id": "tmi_slot_pressed_secondary",
-                            "mapping_type": "pressed"
-                        }
-                    ]
-                }
-            },
-            {
-                "0": {
-                    "type": "custom",
-                    "renderer": "offhand_hud_renderer",
-                    "size": [
-                        18,
-                        18
-                    ],
-                    "layer": 3,
-                    "$cell_index": "#tmi_slot_id",
-                    "property_bag": {
-                        "#tmi_recipe_index": "$tmi_recipe_index",
-                        "#tmi_slot_id": "$tmi_slot_id",
-                        "#tmi_is_result_slot": "$tmi_is_result_slot"
-                    },
-                    "bindings": [
-                        {
-                            "binding_type": "collection_details",
-                            "binding_collection_name": "container_items"
-                        },
-                        {
-                            "binding_name": "#collection_index",
-                            "binding_type": "collection",
-                            "binding_collection_name": "container_items"
-                        },
-                        {
-                            "binding_type": "view",
-                            "source_property_name": "#collection_index",
-                            "target_property_name": "#tmi_slot_id"
-                        }
-                    ]
-                }
-            }
-        ]
-    },
-    "slot_button_bg@common.button": {
-        "layer": 2,
-        "controls": [
-            {
-                "default@tmi.slot_button_default": {}
-            },
-            {
-                "hover@tmi.slot_button_hover": {}
-            },
-            {
-                "pressed@tmi.slot_button_pressed": {}
-            }
-        ]
-    },
-    "slot_button_default": {
-        "type": "image",
-        "texture": "textures/ui/item_cell"
-    },
-    "slot_button_hover": {
-        "type": "image",
-        "texture": "textures/ui/slot_disabled_hover"
-    },
-    "slot_button_pressed": {
-        "type": "image",
-        "texture": "textures/ui/item_cell"
-    },
-    "slot_item_template@tmi.slot_button": {
-        "$item_collection_name": "container_items"
-    },
     "input_grid": {
         "type": "grid",
         "anchor_from": "center",
@@ -511,7 +403,7 @@
             3
         ],
         "collection_name": "container_items",
-        "grid_item_template": "tmi.slot_item_template",
+        "grid_item_template": "tmi_common.slot_item_template",
         "$item_collection_name": "container_items"
     },
     "recipe_screen@common.inventory_screen_common": {
