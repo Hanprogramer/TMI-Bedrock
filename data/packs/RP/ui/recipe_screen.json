@@ -126,7 +126,9 @@
                                                         ],
                                                         "controls": [
                                                             {
-                                                                "input_grid@tmi.input_grid": {}
+                                                                "input_grid@tmi.input_grid": {
+                                                                    "$tmi_recipe_index": 1
+                                                                }
                                                             }
                                                         ]
                                                     }
@@ -175,7 +177,10 @@
                                                                         -7
                                                                     ],
                                                                     "anchor_from": "center",
-                                                                    "anchor_to": "center"
+                                                                    "anchor_to": "center",
+                                                                    "$tmi_recipe_index": 1,
+                                                                    "$tmi_slot_id": 9,
+                                                                    "$tmi_is_result_slot": true
                                                                 }
                                                             }
                                                         ]
@@ -188,7 +193,7 @@
                             }
                         },
                         {
-                            "recipe1panel": {
+                            "recipe2panel": {
                                 "type": "panel",
                                 "anchor_from": "center",
                                 "anchor_to": "center",
@@ -235,7 +240,9 @@
                                                         ],
                                                         "controls": [
                                                             {
-                                                                "input_grid@tmi.input_grid": {}
+                                                                "input_grid@tmi.input_grid": {
+                                                                    "$tmi_recipe_index": 2
+                                                                }
                                                             }
                                                         ]
                                                     }
@@ -284,7 +291,10 @@
                                                                         -7
                                                                     ],
                                                                     "anchor_from": "center",
-                                                                    "anchor_to": "center"
+                                                                    "anchor_to": "center",
+                                                                    "$tmi_recipe_index": 2,
+                                                                    "$tmi_slot_id": 9,
+                                                                    "$tmi_is_result_slot": true
                                                                 }
                                                             }
                                                         ]
@@ -307,6 +317,9 @@
             18,
             18
         ],
+        "$tmi_recipe_index|default": -1,
+        "$tmi_slot_id|default": -1,
+        "$tmi_is_result_slot": false,
         "controls": [
             {
                 "slot_bg@tmi.slot_button_bg": {}
@@ -320,16 +333,29 @@
                         18
                     ],
                     "layer": 3,
-                    "$el_size|default": [
-                        "100%",
-                        20
-                    ],
-                    "variables": {
-                        "$el_size": [
-                            "100%",
-                            30
-                        ]
-                    }
+                    "$cell_index": "#tmi_slot_id",
+                    "property_bag": {
+                        // This is the code I read from C++
+                        "#tmi_recipe_index": "$tmi_recipe_index",
+                        "#tmi_slot_id": "$tmi_slot_id",
+                        "#tmi_is_result_slot": "$tmi_is_result_slot"
+                    },
+                    "bindings": [
+                        {
+                            "binding_type": "collection_details",
+                            "binding_collection_name": "container_items"
+                        },
+                        {
+                            "binding_name": "#collection_index",
+                            "binding_type": "collection",
+                            "binding_collection_name": "container_items"
+                        },
+                        {
+                            "binding_type": "view",
+                            "source_property_name": "#collection_index",
+                            "target_property_name": "#tmi_slot_id"
+                        }
+                    ]
                 }
             }
         ]
@@ -416,22 +442,4 @@
             }
         ]
     }
-    // "recipe_screen@common.inventory_screen_common": {
-    //     "$close_on_player_hurt|default": true,
-    //     "close_on_player_hurt": "$close_on_player_hurt",
-    //     "variables": [
-    //         {
-    //             "requires": "$desktop_screen",
-    //             "$screen_content": "tmi.simple_panel",
-    //             "$screen_bg_content": "common.screen_background",
-    //             "$screen_background_alpha": 0.4
-    //         },
-    //         {
-    //             "requires": "$pocket_screen",
-    //             "$screen_content": "tmi.simple_panel",
-    //             "$screen_bg_content": "common.screen_background",
-    //             "$screen_background_alpha": 0.4
-    //         }
-    //     ]
-    // }
 }

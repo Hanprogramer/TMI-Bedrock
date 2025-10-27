@@ -10,46 +10,51 @@ namespace TMI {
 		}
 
 		virtual void render(MinecraftUIRenderContext& ctx, IClientInstance& _client, UIControl& owner, int32_t pass, RectangleArea& renderAABB) override {
-			ClientInstance& client = _client.asInstance();
-			LocalPlayer* player = client.getLocalPlayer();
-			if (!player || mPropagatedAlpha < 0.5) return;
+			if (owner.mPropertyBag != nullptr && !owner.mPropertyBag->mJsonValue.isNull() && owner.mPropertyBag->mJsonValue.isObject()) {
+				auto id = owner.mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt();
+				auto recipe_index = owner.mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt();
+				auto isResultSlot = owner.mPropertyBag->mJsonValue.get("#tmi_is_result_slot", Json::Value(false)).asBool();
+				if (id > -1 && recipe_index > -1) {
+					ItemStack stack;
+					if (isResultSlot) {
+						stack = TMI::selectedItemStack;
+						ClientInstance& client = _client.asInstance();
 
-			const ItemStack& itemStack = player->playerInventory->getSelectedItem();
-			if (itemStack.isNull()) return;
+						// This disables the item visual from bobbing whenever the itemStack stack changes in content
+						stack.mShowPickup = false;
 
-			// This disables the item visual from bobbing whenever the itemStack stack changes in content
-			ItemStack itemStackCopy = TMI::selectedItemStack;
-			itemStackCopy.mShowPickup = false;
+						glm::tvec2<float> pos = owner.getPosition();
 
-			glm::tvec2<float> pos = owner.getPosition();
+						BaseActorRenderContext renderCtx(*ctx.mScreenContext, client, *client.mMinecraftGame);
+						int yOffset = stack.getItem()->getIconYOffset();
 
-			BaseActorRenderContext renderCtx(*ctx.mScreenContext, client, *client.mMinecraftGame);
-			int yOffset = itemStack.getItem()->getIconYOffset();
+						renderCtx.itemRenderer->renderGuiItemNew(&renderCtx, &stack, 0, pos.x + 1.0f, pos.y - yOffset + 1.0f, false, 1.0f, mPropagatedAlpha, 1.0f);
+						mce::Color color(1.0f, 1.0f, 1.0f, mPropagatedAlpha);
+						ctx.flushImages(color, 1.0f, "ui_flush");
 
-			renderCtx.itemRenderer->renderGuiItemNew(&renderCtx, &itemStackCopy, 0, pos.x + 1.0f, pos.y - yOffset + 1.0f, false, 1.0f, mPropagatedAlpha, 1.0f);
-			mce::Color color(1.0f, 1.0f, 1.0f, mPropagatedAlpha);
-			ctx.flushImages(color, 1.0f, "ui_flush");
+						if (stack.mCount == 1) return;
 
-			if (itemStack.mCount == 1) return;
+						std::string text = std::format("{}", stack.mCount);
+						float lineLength = ctx.getLineLength(*client.mMinecraftGame->mFontHandle.mDefaultFont, text, 1.0f, false);
 
-			std::string text = std::format("{}", itemStack.mCount);
-			float lineLength = ctx.getLineLength(*client.mMinecraftGame->mFontHandle.mDefaultFont, text, 1.0f, false);
+						renderAABB._x0 = pos.x + (18.0f - lineLength);
+						renderAABB._x1 = pos.x + 8.0f;
+						renderAABB._y0 = pos.y + 10.0f;
+						renderAABB._y1 = pos.y + 10.0f;
 
-			renderAABB._x0 = pos.x + (18.0f - lineLength);
-			renderAABB._x1 = pos.x + 8.0f;
-			renderAABB._y0 = pos.y + 10.0f;
-			renderAABB._y1 = pos.y + 10.0f;
+						TextMeasureData textData;
+						memset(&textData, 0, sizeof(TextMeasureData));
+						textData.fontSize = 1.0f;
+						textData.renderShadow = true;
 
-			TextMeasureData textData;
-			memset(&textData, 0, sizeof(TextMeasureData));
-			textData.fontSize = 1.0f;
-			textData.renderShadow = true;
+						CaretMeasureData caretData;
+						memset(&caretData, 1, sizeof(CaretMeasureData));
 
-			CaretMeasureData caretData;
-			memset(&caretData, 1, sizeof(CaretMeasureData));
-
-			ctx.drawDebugText(renderAABB, text, mce::Color::WHITE, 1.0f, ui::Right, textData, caretData);
-			ctx.flushText(0.0f);
+						ctx.drawDebugText(renderAABB, text, mce::Color::WHITE, 1.0f, ui::Right, textData, caretData);
+						ctx.flushText(0.0f);
+					}
+				}
+			}
 		}
 	};
 
