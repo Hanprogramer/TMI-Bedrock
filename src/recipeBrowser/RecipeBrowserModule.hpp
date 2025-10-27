@@ -27,10 +27,13 @@
 #include <mc/src/common/network/packet/InventoryContentPacket.hpp>
 #include "RecipeBrowserScreenController.hpp"
 #include <mc/src/common/world/item/ItemInstance.hpp>
-
+#include <mc/src/common/Minecraft.hpp>
 namespace TMI {
     extern ItemStack selectedItemStack;
+    extern ItemStack currentHoveredStack;
     extern int mode; // 0 - from, 1 - of
+    extern int currentPage;
+    extern int maxPage;
     extern std::vector<std::shared_ptr<Recipe>> recipes;
 
     void initRecipeBrowser();
@@ -39,7 +42,10 @@ namespace TMI {
     bool setRecipesFromItem(Item& item);
     ItemStack getCraftingIngredient(int slot, int recipeIndex);
     ItemStack getResult(int recipeIndex);
+    int recipeCount();
 
-    std::string getItemName(Item& item);
-    void drawFakeTooltip(ItemStack stack, MinecraftUIRenderContext& ctx);
+    std::string getItemName(ItemStack& stack);
+    void drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx);
+    void OnAfterRenderUI(AfterRenderUIEvent event);
+    void OnBeforeRenderUI(BeforeRenderUIEvent event);
 }

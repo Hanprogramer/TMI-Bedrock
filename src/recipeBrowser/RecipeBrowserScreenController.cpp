@@ -12,15 +12,15 @@ namespace TMI {
 		virtual void render(MinecraftUIRenderContext& ctx, IClientInstance& _client, UIControl& owner, int32_t pass, RectangleArea& renderAABB) override {
 			if (owner.mPropertyBag != nullptr && !owner.mPropertyBag->mJsonValue.isNull() && owner.mPropertyBag->mJsonValue.isObject()) {
 				auto id = owner.mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt();
-				auto recipe_index = owner.mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt();
+				auto recipe_index = owner.mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt() + (TMI::currentPage * 2) - 1;
 				auto isResultSlot = owner.mPropertyBag->mJsonValue.get("#tmi_is_result_slot", Json::Value(false)).asBool();
-				if (id > -1 && recipe_index > -1) {
+				if (id > -1 && recipe_index > -1 && recipe_index < TMI::recipeCount()) {
 					ItemStack stack;
 					if (isResultSlot) {
-						stack = TMI::selectedItemStack;
+						stack = TMI::getResult(recipe_index);
 					}
 					else {
-						stack = TMI::getCraftingIngredient(id, 0);
+						stack = TMI::getCraftingIngredient(id, recipe_index);
 					}
 
 					if (stack.isNull() || stack == ItemStack::EMPTY_ITEM) return;
@@ -39,26 +39,31 @@ namespace TMI {
 					mce::Color color(1.0f, 1.0f, 1.0f, mPropagatedAlpha);
 					ctx.flushImages(color, 1.0f, "ui_flush");
 
-					if (stack.mCount == 1) return;
+					if (stack.mCount > 1) {
+						std::string text = std::format("{}", stack.mCount);
+						float lineLength = ctx.getLineLength(*client.mMinecraftGame->mFontHandle.mDefaultFont, text, 1.0f, false);
 
-					std::string text = std::format("{}", stack.mCount);
-					float lineLength = ctx.getLineLength(*client.mMinecraftGame->mFontHandle.mDefaultFont, text, 1.0f, false);
+						renderAABB._x0 = pos.x + (18.0f - lineLength);
+						renderAABB._x1 = pos.x + 8.0f;
+						renderAABB._y0 = pos.y + 10.0f;
+						renderAABB._y1 = pos.y + 10.0f;
 
-					renderAABB._x0 = pos.x + (18.0f - lineLength);
-					renderAABB._x1 = pos.x + 8.0f;
-					renderAABB._y0 = pos.y + 10.0f;
-					renderAABB._y1 = pos.y + 10.0f;
+						TextMeasureData textData;
+						memset(&textData, 0, sizeof(TextMeasureData));
+						textData.fontSize = 1.0f;
+						textData.renderShadow = true;
 
-					TextMeasureData textData;
-					memset(&textData, 0, sizeof(TextMeasureData));
-					textData.fontSize = 1.0f;
-					textData.renderShadow = true;
+						CaretMeasureData caretData;
+						memset(&caretData, 1, sizeof(CaretMeasureData));
 
-					CaretMeasureData caretData;
-					memset(&caretData, 1, sizeof(CaretMeasureData));
+						ctx.drawDebugText(renderAABB, text, mce::Color::WHITE, 1.0f, ui::Right, textData, caretData);
+						ctx.flushText(0.0f);
+					}
 
-					ctx.drawDebugText(renderAABB, text, mce::Color::WHITE, 1.0f, ui::Right, textData, caretData);
-					ctx.flushText(0.0f);
+
+					if (owner.mHover || owner.mParent.lock()->mChildren[0]->mHover) {
+						TMI::currentHoveredStack = stack;
+					}
 				}
 			}
 		}
@@ -94,7 +99,7 @@ namespace TMI {
 		HOOK(UIControlFactory, _populateCustomRenderComponent);
 	}
 
-	RecipeBrowserScreenController::RecipeBrowserScreenController(std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, Item& item) : ClientInstanceScreenController(model), mItem(item)
+	RecipeBrowserScreenController::RecipeBrowserScreenController(std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, ItemStack& itemStack) : ClientInstanceScreenController(model), mItemStack(itemStack)
 	{
 		auto& player = *model->getPlayer();
 		_registerBindings();
@@ -103,13 +108,13 @@ namespace TMI {
 	void RecipeBrowserScreenController::_registerBindings()
 	{
 
-		Item* mItem2 = &mItem;
+		bindString("#title_text", [this]() {
+			if (mItemStack.isNull()) return std::string("Crafting Recipes");
+			Item& item = *mItemStack.getItem();
+			return item.buildDescriptionName(mItemStack);
+			}, []() { return true; });
 
-		bindString("#title_text", [mItem2]() { return TMI::getItemName(*mItem2);  }, []() { return true; });
-
-
-		auto self = this;
-		this->registerButtonInteractedHandler(StringToNameId("tmi_close_modal"), [self](UIPropertyBag* props) {
+		this->registerButtonInteractedHandler(StringToNameId("tmi_close_modal"), [this](UIPropertyBag* props) {
 			auto& clientInstance = *Amethyst::GetClientCtx().mClientInstance;
 			auto& game = *clientInstance.mMinecraftGame;
 			auto& factory = *clientInstance.mSceneFactory;
@@ -117,10 +122,6 @@ namespace TMI {
 			factory.getCurrentSceneStack()->schedulePopScreen(1);
 			return ui::ViewRequest::Exit;
 			});
-
-		this->mControlCreateCallback = [](const std::string a, const UIPropertyBag& props) {
-			Log::Info("Creating UI Control {}", a);
-			};
 
 	}
 }

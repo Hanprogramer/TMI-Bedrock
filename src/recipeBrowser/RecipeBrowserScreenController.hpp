@@ -34,8 +34,8 @@ namespace TMI
 {
 	class RecipeBrowserScreenController : public ClientInstanceScreenController {
 	public:
-		Item& mItem;
-		RecipeBrowserScreenController(std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, Item& item);
+		ItemStack& mItemStack;
+		RecipeBrowserScreenController(std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, ItemStack& itemStack);
 		void _registerBindings();
 	};
 

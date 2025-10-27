@@ -2,7 +2,10 @@
 
 namespace TMI {
 	ItemStack selectedItemStack;
+	ItemStack currentHoveredStack;
 	int mode = 0;
+	int currentPage = 0;
+	int maxPage = 0;
 	std::vector<std::shared_ptr<Recipe>> recipes;
 
 	bool initialized = false;
@@ -50,15 +53,13 @@ namespace TMI {
 		return modName;
 	}
 
-	std::string getItemName(Item& item) {
-		auto& i18n = getI18n();
-		auto isItem = item.getLegacyBlock() == nullptr;
-		std::string langKey = (isItem ? "item." : "tile.") +
-			item.mRawNameId.getString() + ".name";
-		return i18n.get(langKey, nullptr);
+	std::string getItemName(ItemStack& stack) {
+		auto& item = *stack.getItem();
+		return item.buildDescriptionName(stack);
 	}
 
-	void drawFakeTooltip(ItemStack stack, MinecraftUIRenderContext& ctx) {
+	void drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx) {
+		if (stack.isNull()) return;
 		// Draw the background
 		ClientInstance& mc = *Amethyst::GetClientCtx().mClientInstance;
 		Vec2 screenSize = mc.mGuiData->clientUIScreenSize;
@@ -66,16 +67,13 @@ namespace TMI {
 		auto fontHandlePtr = Bedrock::NonOwnerPointer<const FontHandle>(&ctx.mDebugTextFontHandle);
 
 		Item& item = *stack.getItem();
-		std::string subtitleStr = std::string("§o");
-		std::string mNamespace = getModNameFromNamespace(item.mNamespace);
 		const int padding = 4;
-		const int maxWidth = 200;
+		const int maxWidth = 300;
 		const int maxHeight = 100;
-		subtitleStr.append(mNamespace);
-		std::string itemName = getItemName(item);
-		const char* title = itemName.c_str();
-		const char* subtitle = subtitleStr.c_str();
-
+		std::string text;
+		Level& level = *mc.mMinecraft->getLevel();
+		item.appendFormattedHovertext(stack, level, text, false);
+		text = text.substr(0, text.size() - 3); // remove the last \n
 
 		TextMeasureData tmd = TextMeasureData{
 				1,  // fontSize
@@ -89,19 +87,19 @@ namespace TMI {
 		};
 
 		UIMeasureStrategy& meassurer = ctx.mMeasureStrategy;
-		MeasureResult result = meassurer.measureText(fontHandlePtr, title, maxWidth, maxHeight, tmd, cmd);
-		MeasureResult result2 = meassurer.measureText(fontHandlePtr, subtitle, maxWidth, maxHeight, tmd, cmd);
+		
+		MeasureResult result = meassurer.measureText(fontHandlePtr, text, maxWidth, maxHeight, tmd, cmd);
 
-		float height = result.mSize.y + result2.mSize.y + tmd.linePadding;
-		float width = std::max(result.mSize.x, result2.mSize.x);
+		float height = result.mSize.y;
+		float width = std::max(result.mSize.x, 0.0f);
 		float mGuiScale = mc.mGuiData->mGuiScale;
 		float x = mposX / mGuiScale + 10;
 		float y = mposY / mGuiScale + 10;
 
 
 		// Draw the background
-		Amethyst::NinesliceHelper backgroundSlice(16, 16, 3, 3);
-		mce::TexturePtr texture = ctx.getTexture("textures/ui/hud_text_bg", true);
+		Amethyst::NinesliceHelper backgroundSlice(16, 16, 5, 5);
+		mce::TexturePtr texture = ctx.getTexture("textures/ui/purpleBorder", true);
 		RectangleArea bgRect = RectangleArea(
 			x,
 			x + width + padding * 2,
@@ -116,15 +114,7 @@ namespace TMI {
 				x + padding,
 				x + width + padding,
 				y + padding,
-				height), title, mce::Color::WHITE, 1.0f, ui::TextAlignment::Center,
-			tmd,
-			cmd);
-		ctx.drawText(font,
-			RectangleArea(
-				x + padding,
-				x + width + padding,
-				y + padding + result.mSize.y + tmd.linePadding,
-				height), subtitle, mce::Color::BLUE, 1.0f, ui::TextAlignment::Center,
+				height), text, mce::Color::WHITE, 1.0f, ui::TextAlignment::Center,
 			tmd,
 			cmd);
 		ctx.flushText(1.0f);
@@ -176,6 +166,7 @@ namespace TMI {
 					ctx.fillRectangle(RectangleArea(xx, xx + width, yy, yy + height), mce::Color(1.0f, 1.0f, 1.0f, 0.5f), 0.5f);
 					hovered = i;
 					hoveredID = key;
+					currentHoveredStack = stack;
 					if (isMouseJustReleased) {
 						Log::Info("Pressed: {}", stack.getItem()->mDescriptionId);
 						// Open the screen
@@ -196,7 +187,9 @@ namespace TMI {
 							auto interactionModel = ContainerScreenController::interactionModelFromUIProfile(model->getUIProfile());
 							auto& item = *stack.getItem();
 							if (TMI::setRecipesForItem(item)) {
-								auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, item);
+								ItemStack clone = ItemStack(stack);
+								ItemStack& cloneAddr = clone;
+								auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, cloneAddr);
 
 								auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
 								auto screen = factory._createScreen(scene);
@@ -227,13 +220,16 @@ namespace TMI {
 				if (i > 200) break;
 			}
 			ctx.flushImages(mce::Color::WHITE, 1.0f, "ui_flush");
-
-			if (hovered > -1) {
-				drawFakeTooltip(itemMap.at(hoveredID), ctx);
-				ctx.flushImages(mce::Color::WHITE, 1.0f, "ui_flush");
-			}
 		}
 		isMouseJustReleased = false;
+
+		// Render custom tooltip renderer
+		if (!currentHoveredStack.isNull())
+			drawFakeTooltip(currentHoveredStack, ctx);
+		currentHoveredStack = ItemStack::EMPTY_ITEM;
+	}
+
+	void OnBeforeRenderUI(BeforeRenderUIEvent event) {
 	}
 
 	void OnMouseInput(MouseInputEvent event) {
@@ -254,6 +250,7 @@ namespace TMI {
 	void initRecipeBrowser()
 	{
 		Amethyst::GetEventBus().AddListener<AfterRenderUIEvent>(&OnAfterRenderUI);
+		Amethyst::GetEventBus().AddListener<BeforeRenderUIEvent>(&OnBeforeRenderUI);
 		Amethyst::GetEventBus().AddListener<MouseInputEvent>(&OnMouseInput);
 		RegisterOffhandHud();
 	}
@@ -264,6 +261,7 @@ namespace TMI {
 		stack.reinit(item, 1, 0);
 		selectedItemStack = stack;
 		recipes.clear();
+
 
 		Recipes& lrecipes = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getRecipes();
 		for (const auto& [recipeId, recipe] : lrecipes.mRecipes["crafting_table"]) {
@@ -279,6 +277,10 @@ namespace TMI {
 				Log::Info("Recipe '{}' match the result type", recipe->mRecipeId);
 			}
 		}
+
+		currentPage = 0;
+		maxPage = (int)(recipes.size() / 2.0);
+
 		return recipes.size() > 0;
 	}
 
@@ -329,7 +331,7 @@ namespace TMI {
 
 		ItemStack stack;
 		const Item& item = *ingredient.mItem;
-		
+
 		if (ingredient.hasAux())
 			stack.reinit(item, 1, ingredient.mAuxValue);
 		else
@@ -338,12 +340,15 @@ namespace TMI {
 	}
 	ItemStack getResult(int recipeIndex)
 	{
-		auto recipe = recipes.at(recipeIndex);
-		auto result = recipe->getResultItem().front();
+		auto& recipe = recipes.at(recipeIndex);
+		auto& result = recipe->getResultItem().front();
 
 		ItemStack stack;
 		const Item& item = *result.getItem();
 		stack.reinit(item, result.mCount, result.mAuxValue);
 		return stack;
+	}
+	int recipeCount() {
+		return recipes.size();
 	}
 }
