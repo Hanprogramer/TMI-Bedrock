@@ -3,8 +3,8 @@
     "simple_panel": {
         "type": "panel",
         "size": [
-            "40%",
-            "60%"
+            "60%",
+            "50%"
         ],
         "anchor_from": "center",
         "anchor_to": "center",
@@ -12,7 +12,7 @@
             {
                 "bg": {
                     "type": "image",
-                    "texture": "textures/ui/dialog_background_opaque",
+                    "texture": "textures/ui/background_panel",
                     "size": [
                         "100%",
                         "100%"
@@ -26,7 +26,7 @@
                 "title": {
                     "type": "label",
                     "text": "#text",
-                    "font_size": "medium",
+                    "font_size": "large",
                     "color": [
                         1.0,
                         1.0,
@@ -39,6 +39,7 @@
                         0,
                         12
                     ],
+                    "layer": 1,
                     "bindings": [
                         {
                             "binding_name": "#title_text",
@@ -48,25 +49,104 @@
                     ]
                 }
             },
+            // Top-right X button to close
             {
                 "close@common_buttons.light_text_button": {
+                    "$button_text": "x",
+                    "$pressed_button_name": "tmi_close_modal",
                     "size": [
                         18,
                         18
                     ],
-                    "$button_text": "x",
-                    "$pressed_button_name": "button.menu_exit",
                     "anchor_from": "top_right",
                     "anchor_to": "top_right",
                     "offset": [
                         -6,
                         6
+                    ],
+                    "layer": 2
+                }
+            },
+            // Content area holding the 3x3 grid, arrow and output slot
+            {
+                "content": {
+                    "type": "panel",
+                    "anchor_from": "center",
+                    "anchor_to": "center",
+                    "offset": [
+                        0,
+                        12
+                    ],
+                    "controls": [
+                        {
+                            "crafting_grid": {
+                                "type": "panel",
+                                "size": [
+                                    "100%",
+                                    "50% - 12px"
+                                ],
+                                "offset": [
+                                    0,
+                                    0
+                                ],
+                                "anchor_to": "top_left",
+                                "anchor_from": "top_left",
+                                "controls": [
+                                    {
+                                        "input_grid@tmi.input_grid": {}
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "arrow": {
+                                "type": "label",
+                                "text": "→",
+                                "font_size": "large",
+                                "color": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ],
+                                "anchor_from": "center",
+                                "anchor_to": "center"
+                            }
+                        },
+                        {
+                            "output_slot@tmi.slot_item_template": {
+                                "anchor_from": "middle_right",
+                                "anchor_to": "middle_right",
+                                "offset": [
+                                    56,
+                                    0
+                                ]
+                            }
+                        }
                     ]
                 }
             }
         ]
     },
-    "recipe_screen": {
+    "slot_item_template@common.container_item": {
+        "$item_collection_name": "container_items"
+    },
+    "input_grid": {
+        "type": "grid",
+        "anchor_from": "center",
+        "anchor_to": "center",
+        "offset": [
+            3,
+            3
+        ],
+        "grid_dimensions": [
+            3,
+            3
+        ],
+        "collection_name": "container_items",
+        "grid_item_template": "tmi.slot_item_template",
+        "$item_collection_name": "container_items"
+    },
+    "recipe_screen@common.inventory_screen_common": {
         "type": "screen",
         "is_modal": true,
         "force_render_below": true,
@@ -103,4 +183,22 @@
             }
         ]
     }
+    // "recipe_screen@common.inventory_screen_common": {
+    //     "$close_on_player_hurt|default": true,
+    //     "close_on_player_hurt": "$close_on_player_hurt",
+    //     "variables": [
+    //         {
+    //             "requires": "$desktop_screen",
+    //             "$screen_content": "tmi.simple_panel",
+    //             "$screen_bg_content": "common.screen_background",
+    //             "$screen_background_alpha": 0.4
+    //         },
+    //         {
+    //             "requires": "$pocket_screen",
+    //             "$screen_content": "tmi.simple_panel",
+    //             "$screen_bg_content": "common.screen_background",
+    //             "$screen_background_alpha": 0.4
+    //         }
+    //     ]
+    // }
 }

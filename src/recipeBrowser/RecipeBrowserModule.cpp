@@ -75,7 +75,8 @@ void drawFakeTooltip(ItemStack stack, MinecraftUIRenderContext& ctx) {
 	const int maxWidth = 200;
 	const int maxHeight = 100;
 	subtitleStr.append(mNamespace);
-	const char* title = getItemName(item).c_str();
+	std::string itemName = getItemName(item);
+	const char* title = itemName.c_str();
 	const char* subtitle = subtitleStr.c_str();
 
 
@@ -197,10 +198,11 @@ void OnAfterRenderUI(AfterRenderUIEvent event)
 							clientInstance,
 							factory.mAdvancedGraphicOptions
 						);
-						auto controller = std::make_shared<RecipeBrowserScreenController>(model);
+						auto interactionModel = ContainerScreenController::interactionModelFromUIProfile(model->getUIProfile());
 						auto item = stack.getItem();
+						auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, item);
 						controller->bindString("#title_text", [item]() { return getItemName(item);  }, []() { return true; });
-
+						
 						auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
 						auto screen = factory._createScreen(scene);
 						factory.getCurrentSceneStack()->pushScreen(screen, false);
