@@ -184,6 +184,28 @@ namespace TMI {
 			}
 			return ui::ViewRequest::Refresh;
 			});
+
+		this->registerButtonInteractedHandler(StringToNameId("tmi_slot_pressed_secondary"), [this](UIPropertyBag* mPropertyBag) {
+			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
+				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt();
+				auto recipe_index = mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt() + (TMI::currentPage * 2) - 1;
+				auto isResultSlot = mPropertyBag->mJsonValue.get("#tmi_is_result_slot", Json::Value(false)).asBool();
+
+				if (id > -1 && recipe_index > -1 && recipe_index < TMI::recipeCount()) {
+					ItemStack stack;
+					if (isResultSlot) {
+						stack = TMI::getResult(recipe_index);
+					}
+					else {
+						stack = TMI::getCraftingIngredient(id, recipe_index);
+					}
+
+					TMI::setRecipesFromItem(*stack.getItem());
+				}
+			}
+			return ui::ViewRequest::Refresh;
+			});
+
 		this->registerButtonInteractedHandler(StringToNameId("tmi_prev"), [this](UIPropertyBag* props) {
 			TMI::currentPage--;
 			refreshPage();

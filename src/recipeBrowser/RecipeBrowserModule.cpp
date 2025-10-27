@@ -87,7 +87,7 @@ namespace TMI {
 		};
 
 		UIMeasureStrategy& meassurer = ctx.mMeasureStrategy;
-		
+
 		MeasureResult result = meassurer.measureText(fontHandlePtr, text, maxWidth, maxHeight, tmd, cmd);
 
 		float height = result.mSize.y;
@@ -262,7 +262,6 @@ namespace TMI {
 		selectedItemStack = stack;
 		recipes.clear();
 
-
 		Recipes& lrecipes = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getRecipes();
 		for (const auto& [recipeId, recipe] : lrecipes.mRecipes["crafting_table"]) {
 			const std::vector<ItemInstance>& results = recipe->getResultItem();
@@ -286,7 +285,62 @@ namespace TMI {
 
 	bool setRecipesFromItem(Item& item)
 	{
-		return false;
+		ItemStack stack;
+		stack.reinit(item, 1, 0);
+		selectedItemStack = stack;
+		recipes.clear();
+
+		Recipes& lrecipes = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getRecipes();
+		for (const auto& [recipeId, recipe] : lrecipes.mRecipes["crafting_table"]) {
+			for (int i = 0; i < 8; i++) {
+				int x = 0;
+				int y = 0;
+				switch (i) {
+				case 0:
+					x = 0; y = 0;
+					break;
+				case 1:
+					x = 1; y = 0;
+					break;
+				case 2:
+					x = 2; y = 0;
+					break;
+				case 3:
+					x = 0; y = 1;
+					break;
+				case 4:
+					x = 1; y = 1;
+					break;
+				case 5:
+					x = 2; y = 1;
+					break;
+				case 6:
+					x = 0; y = 2;
+					break;
+				case 7:
+					x = 1; y = 2;
+					break;
+				case 8:
+					x = 2; y = 2;
+					break;
+				}
+				auto& ingredients = recipe->getIngredient(x, y);
+				if (ingredients.mStackSize == 0) continue;
+				auto items = ingredients.mImpl->getAllItems();
+				for (int j = 0; j < items.size(); j++) {
+					if (items[j].mItem->mId == item.mId) {
+						recipes.push_back(recipe);
+						goto finish;
+					}
+				}
+			}
+		finish: {}
+		}
+
+		currentPage = 0;
+		maxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
+
+		return recipes.size() > 0;
 	}
 
 	ItemStack getCraftingIngredient(int slot, int recipeIndex)

@@ -4,7 +4,7 @@
         "type": "panel",
         "size": [
             180,
-            180
+            190
         ],
         "anchor_from": "center",
         "anchor_to": "center",
@@ -37,7 +37,7 @@
                     "anchor_to": "top_middle",
                     "offset": [
                         0,
-                        6
+                        9
                     ],
                     "layer": 1,
                     "bindings": [
@@ -64,7 +64,7 @@
                     "anchor_to": "bottom_middle",
                     "offset": [
                         0,
-                        -6
+                        -9
                     ],
                     "layer": 1,
                     "bindings": [
@@ -422,6 +422,14 @@
                             "binding_type": "view",
                             "source_property_name": "#collection_index",
                             "target_property_name": "#tmi_slot_id"
+                        }
+                    ],
+                    "button_mappings": [
+                        // Trigger this button if it's right clicked
+                        {
+                            "from_button_id": "button.menu_secondary_select",
+                            "to_button_id": "tmi_slot_pressed_secondary",
+                            "mapping_type": "pressed"
                         }
                     ]
                 }
