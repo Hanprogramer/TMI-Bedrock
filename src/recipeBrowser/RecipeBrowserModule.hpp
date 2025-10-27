@@ -26,8 +26,17 @@
 #include <mc/src-client/common/client/gui/screens/controllers/ContainerScreenController.hpp>
 #include <mc/src/common/network/packet/InventoryContentPacket.hpp>
 #include "RecipeBrowserScreenController.hpp"
+#include <mc/src/common/world/item/ItemInstance.hpp>
 
 namespace TMI {
     extern ItemStack selectedItemStack;
-    void Init();
+    extern int mode; // 0 - from, 1 - of
+    extern std::vector<std::shared_ptr<Recipe>> recipes;
+
+    void initRecipeBrowser();
+
+    void setRecipesForItem(Item& item);
+    void setRecipesFromItem(Item& item);
+    ItemStack getIngredient(int slot, int recipeIndex);
+    ItemStack getResult(int recipeIndex);
 }

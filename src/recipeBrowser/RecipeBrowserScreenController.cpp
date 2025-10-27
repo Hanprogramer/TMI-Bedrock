@@ -18,41 +18,44 @@ namespace TMI {
 					ItemStack stack;
 					if (isResultSlot) {
 						stack = TMI::selectedItemStack;
-						ClientInstance& client = _client.asInstance();
-
-						// This disables the item visual from bobbing whenever the itemStack stack changes in content
-						stack.mShowPickup = false;
-
-						glm::tvec2<float> pos = owner.getPosition();
-
-						BaseActorRenderContext renderCtx(*ctx.mScreenContext, client, *client.mMinecraftGame);
-						int yOffset = stack.getItem()->getIconYOffset();
-
-						renderCtx.itemRenderer->renderGuiItemNew(&renderCtx, &stack, 0, pos.x + 1.0f, pos.y - yOffset + 1.0f, false, 1.0f, mPropagatedAlpha, 1.0f);
-						mce::Color color(1.0f, 1.0f, 1.0f, mPropagatedAlpha);
-						ctx.flushImages(color, 1.0f, "ui_flush");
-
-						if (stack.mCount == 1) return;
-
-						std::string text = std::format("{}", stack.mCount);
-						float lineLength = ctx.getLineLength(*client.mMinecraftGame->mFontHandle.mDefaultFont, text, 1.0f, false);
-
-						renderAABB._x0 = pos.x + (18.0f - lineLength);
-						renderAABB._x1 = pos.x + 8.0f;
-						renderAABB._y0 = pos.y + 10.0f;
-						renderAABB._y1 = pos.y + 10.0f;
-
-						TextMeasureData textData;
-						memset(&textData, 0, sizeof(TextMeasureData));
-						textData.fontSize = 1.0f;
-						textData.renderShadow = true;
-
-						CaretMeasureData caretData;
-						memset(&caretData, 1, sizeof(CaretMeasureData));
-
-						ctx.drawDebugText(renderAABB, text, mce::Color::WHITE, 1.0f, ui::Right, textData, caretData);
-						ctx.flushText(0.0f);
 					}
+
+					if (stack.isNull()) return;
+
+					ClientInstance& client = _client.asInstance();
+
+					// This disables the item visual from bobbing whenever the itemStack stack changes in content
+					stack.mShowPickup = false;
+
+					glm::tvec2<float> pos = owner.getPosition();
+
+					BaseActorRenderContext renderCtx(*ctx.mScreenContext, client, *client.mMinecraftGame);
+					int yOffset = stack.getItem()->getIconYOffset();
+
+					renderCtx.itemRenderer->renderGuiItemNew(&renderCtx, &stack, 0, pos.x + 1.0f, pos.y - yOffset + 1.0f, false, 1.0f, mPropagatedAlpha, 1.0f);
+					mce::Color color(1.0f, 1.0f, 1.0f, mPropagatedAlpha);
+					ctx.flushImages(color, 1.0f, "ui_flush");
+
+					if (stack.mCount == 1) return;
+
+					std::string text = std::format("{}", stack.mCount);
+					float lineLength = ctx.getLineLength(*client.mMinecraftGame->mFontHandle.mDefaultFont, text, 1.0f, false);
+
+					renderAABB._x0 = pos.x + (18.0f - lineLength);
+					renderAABB._x1 = pos.x + 8.0f;
+					renderAABB._y0 = pos.y + 10.0f;
+					renderAABB._y1 = pos.y + 10.0f;
+
+					TextMeasureData textData;
+					memset(&textData, 0, sizeof(TextMeasureData));
+					textData.fontSize = 1.0f;
+					textData.renderShadow = true;
+
+					CaretMeasureData caretData;
+					memset(&caretData, 1, sizeof(CaretMeasureData));
+
+					ctx.drawDebugText(renderAABB, text, mce::Color::WHITE, 1.0f, ui::Right, textData, caretData);
+					ctx.flushText(0.0f);
 				}
 			}
 		}

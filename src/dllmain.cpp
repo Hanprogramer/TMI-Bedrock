@@ -7,5 +7,5 @@ ModFunction void Initialize(AmethystContext& ctx, const Amethyst::Mod& mod)
 	// Initialize Amethyst mod backend
 	Amethyst::InitializeAmethystMod(ctx, mod);
 	CrossairInfoModule::Init();
-	TMI::Init();
+	TMI::initRecipeBrowser();
 }

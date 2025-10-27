@@ -2,6 +2,8 @@
 
 namespace TMI {
 	ItemStack selectedItemStack;
+	int mode = 0;
+	std::vector<std::shared_ptr<Recipe>> recipes;
 
 	bool initialized = false;
 
@@ -48,11 +50,11 @@ namespace TMI {
 		return modName;
 	}
 
-	std::string getItemName(Item* item) {
+	std::string getItemName(Item& item) {
 		auto& i18n = getI18n();
-		auto isItem = item->getLegacyBlock() == nullptr;
+		auto isItem = item.getLegacyBlock() == nullptr;
 		std::string langKey = (isItem ? "item." : "tile.") +
-			item->mRawNameId.getString() + ".name";
+			item.mRawNameId.getString() + ".name";
 		return i18n.get(langKey, nullptr);
 	}
 
@@ -63,9 +65,9 @@ namespace TMI {
 		Font& font = *ctx.mDebugTextFontHandle.mDefaultFont.get();
 		auto fontHandlePtr = Bedrock::NonOwnerPointer<const FontHandle>(&ctx.mDebugTextFontHandle);
 
-		Item* item = stack.getItem();
+		Item& item = *stack.getItem();
 		std::string subtitleStr = std::string("§o");
-		std::string mNamespace = getModNameFromNamespace(item->mNamespace);
+		std::string mNamespace = getModNameFromNamespace(item.mNamespace);
 		const int padding = 4;
 		const int maxWidth = 200;
 		const int maxHeight = 100;
@@ -153,8 +155,6 @@ namespace TMI {
 					}
 				}
 
-				//Recipes recipes = mc->getLocalPlayer()->getLevel()->getRecipes();
-
 				initialized = true;
 
 			}
@@ -194,10 +194,10 @@ namespace TMI {
 								factory.mAdvancedGraphicOptions
 							);
 							auto interactionModel = ContainerScreenController::interactionModelFromUIProfile(model->getUIProfile());
-							auto item = stack.getItem();
-							TMI::selectedItemStack = stack;
-							auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, item);
-							controller->bindString("#title_text", [item]() { return getItemName(item);  }, []() { return true; });
+							auto& item = *stack.getItem();
+							TMI::setRecipesForItem(item);
+							auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, &item);
+							/*controller->bindString("#title_text", [item]() { return getItemName(item);  }, []() { return true; });*/
 
 							auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
 							auto screen = factory._createScreen(scene);
@@ -251,10 +251,62 @@ namespace TMI {
 		//Log::Info("buttonData: {}, actionButtonId: {}", event.mButtonData, event.mActionButtonId);
 	}
 
-	void Init()
+	void initRecipeBrowser()
 	{
 		Amethyst::GetEventBus().AddListener<AfterRenderUIEvent>(&OnAfterRenderUI);
 		Amethyst::GetEventBus().AddListener<MouseInputEvent>(&OnMouseInput);
 		RegisterOffhandHud();
+	}
+
+	void setRecipesForItem(Item& item)
+	{
+		ItemStack stack;
+		stack.reinit(item, 1, 0);
+		selectedItemStack = stack;
+		recipes.clear();
+
+		Recipes lrecipes = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getRecipes();
+		for (const auto& [recipeId, recipe] : lrecipes.mRecipes["crafting_table"]) {
+			auto r = recipe;
+			auto rid = recipeId;
+			const std::vector<ItemInstance> results = recipe->getResultItem();
+			const ItemInstance result = results.front();
+			if (result.getItem()->mId == item.mId) {
+				recipes.push_back(recipe);
+			}
+		}
+	}
+
+	void setRecipesFromItem(Item& item)
+	{
+	}
+
+	ItemStack getIngredient(int slot, int recipeIndex)
+	{
+		auto recipe = recipes.at(recipeIndex);
+		int x = 0;
+		int y = 0;
+		auto ingredientRef = recipe->getIngredient(x, y);
+		auto ingredients = ingredientRef.mImpl->getAllItems();
+		auto ingredient = ingredients.front();
+
+		ItemStack stack;
+		const Item& item = *ingredient.mItem;
+		
+		if (ingredient.hasAux())
+			stack.reinit(item, 1, ingredient.mAuxValue);
+		else
+			stack.reinit(item, 1, 0);
+		return stack;
+	}
+	ItemStack getResult(int recipeIndex)
+	{
+		auto recipe = recipes.at(recipeIndex);
+		auto result = recipe->getResultItem().front();
+
+		ItemStack stack;
+		const Item& item = *result.getItem();
+		stack.reinit(item, result.mCount, result.mAuxValue);
+		return stack;
 	}
 }
