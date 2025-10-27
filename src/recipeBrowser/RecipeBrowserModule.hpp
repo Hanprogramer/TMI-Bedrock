@@ -19,7 +19,15 @@
 #include <amethyst/runtime/events/InputEvents.hpp>
 #include <mc/src-client/common/client/gui/screens/SceneStack.hpp>
 #include <mc/src-client/common/client/gui/screens/SceneFactory.hpp>
+#include <amethyst/ui/NinesliceHelper.hpp>
+#include <mc/src/common/locale/I18n.hpp>
+#include <mc/src-client/common/client/gui/screens/SceneCreationUtils.hpp>
+#include <mc/src-client/common/client/gui/screens/models/ClientInstanceScreenModel.hpp>
+#include <mc/src-client/common/client/gui/screens/controllers/ContainerScreenController.hpp>
+#include <mc/src/common/network/packet/InventoryContentPacket.hpp>
+#include "RecipeBrowserScreenController.hpp"
 
-namespace RecipeBrowserModule {
+namespace TMI {
+    extern ItemStack selectedItemStack;
     void Init();
 }

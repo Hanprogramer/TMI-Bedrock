@@ -3,7 +3,7 @@
 #include <amethyst/runtime/mod/Mod.hpp>
 #include <amethyst/runtime/ModContext.hpp>
 #include <amethyst/runtime/events/GameEvents.hpp> // OnStartJoinGameEvent
-#include "dllmain.hpp"
+
 #include "crossairModule/CrossairInfoModule.h"
 #include "recipeBrowser/RecipeBrowserModule.hpp"
 
