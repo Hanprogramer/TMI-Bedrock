@@ -19,8 +19,11 @@ namespace TMI {
 					if (isResultSlot) {
 						stack = TMI::selectedItemStack;
 					}
+					else {
+						stack = TMI::getCraftingIngredient(id, 0);
+					}
 
-					if (stack.isNull()) return;
+					if (stack.isNull() || stack == ItemStack::EMPTY_ITEM) return;
 
 					ClientInstance& client = _client.asInstance();
 
@@ -91,7 +94,7 @@ namespace TMI {
 		HOOK(UIControlFactory, _populateCustomRenderComponent);
 	}
 
-	RecipeBrowserScreenController::RecipeBrowserScreenController(std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, const Item* item) : ClientInstanceScreenController(model), mItem(item)
+	RecipeBrowserScreenController::RecipeBrowserScreenController(std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, Item& item) : ClientInstanceScreenController(model), mItem(item)
 	{
 		auto& player = *model->getPlayer();
 		_registerBindings();
@@ -99,12 +102,10 @@ namespace TMI {
 
 	void RecipeBrowserScreenController::_registerBindings()
 	{
-		std::string itemName = std::format("item.{}.name", mItem->mFullName.getString());
-		itemName = getI18n().get(itemName, nullptr);
 
-		bindString("#title_text", [itemName]() {
-			return itemName;
-			}, []() { return true; });
+		Item* mItem2 = &mItem;
+
+		bindString("#title_text", [mItem2]() { return TMI::getItemName(*mItem2);  }, []() { return true; });
 
 
 		auto self = this;
@@ -121,33 +122,5 @@ namespace TMI {
 			Log::Info("Creating UI Control {}", a);
 			};
 
-	}
-
-	void RecipeBrowserScreenController::onDelete()
-	{
-		Log::Info("Deleting");
-	}
-
-	ui::ViewRequest RecipeBrowserScreenController::tryExit()
-	{
-		Log::Info("Try exiting");
-		return ui::ViewRequest::None;
-	}
-
-	void RecipeBrowserScreenController::leaveScreen(const std::string& arg1)
-	{
-		Log::Info("Leaving {}", arg1);
-	}
-
-	void RecipeBrowserScreenController::onDictationEvent(const std::string& arg1)
-	{
-		Log::Info("OnDictation {}", arg1);
-	}
-
-
-	void RecipeBrowserScreenController::onLeave()
-	{
-		// DO nothing
-		Log::Info("is leaving");
 	}
 }

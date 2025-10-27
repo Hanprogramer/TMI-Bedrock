@@ -35,8 +35,11 @@ namespace TMI {
 
     void initRecipeBrowser();
 
-    void setRecipesForItem(Item& item);
-    void setRecipesFromItem(Item& item);
-    ItemStack getIngredient(int slot, int recipeIndex);
+    bool setRecipesForItem(Item& item);
+    bool setRecipesFromItem(Item& item);
+    ItemStack getCraftingIngredient(int slot, int recipeIndex);
     ItemStack getResult(int recipeIndex);
+
+    std::string getItemName(Item& item);
+    void drawFakeTooltip(ItemStack stack, MinecraftUIRenderContext& ctx);
 }

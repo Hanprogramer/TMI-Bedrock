@@ -195,13 +195,13 @@ namespace TMI {
 							);
 							auto interactionModel = ContainerScreenController::interactionModelFromUIProfile(model->getUIProfile());
 							auto& item = *stack.getItem();
-							TMI::setRecipesForItem(item);
-							auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, &item);
-							/*controller->bindString("#title_text", [item]() { return getItemName(item);  }, []() { return true; });*/
+							if (TMI::setRecipesForItem(item)) {
+								auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, item);
 
-							auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
-							auto screen = factory._createScreen(scene);
-							factory.getCurrentSceneStack()->pushScreen(screen, false);
+								auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
+								auto screen = factory._createScreen(scene);
+								factory.getCurrentSceneStack()->pushScreen(screen, false);
+							}
 						}
 						else {
 							//auto& minecraft = *Amethyst::GetServerCtx().mMinecraft;
@@ -258,36 +258,73 @@ namespace TMI {
 		RegisterOffhandHud();
 	}
 
-	void setRecipesForItem(Item& item)
+	bool setRecipesForItem(Item& item)
 	{
 		ItemStack stack;
 		stack.reinit(item, 1, 0);
 		selectedItemStack = stack;
 		recipes.clear();
 
-		Recipes lrecipes = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getRecipes();
+		Recipes& lrecipes = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getRecipes();
 		for (const auto& [recipeId, recipe] : lrecipes.mRecipes["crafting_table"]) {
-			auto r = recipe;
-			auto rid = recipeId;
-			const std::vector<ItemInstance> results = recipe->getResultItem();
-			const ItemInstance result = results.front();
+			const std::vector<ItemInstance>& results = recipe->getResultItem();
+			if (results.empty()) continue;
+			const ItemInstance& result = results.front();
+			if (result == NULL || result.isNull()) {
+				Log::Info("Recipe '{}' has no result. Result NULL", recipe->mRecipeId);
+				continue;
+			}
 			if (result.getItem()->mId == item.mId) {
 				recipes.push_back(recipe);
+				Log::Info("Recipe '{}' match the result type", recipe->mRecipeId);
 			}
 		}
+		return recipes.size() > 0;
 	}
 
-	void setRecipesFromItem(Item& item)
+	bool setRecipesFromItem(Item& item)
 	{
+		return false;
 	}
 
-	ItemStack getIngredient(int slot, int recipeIndex)
+	ItemStack getCraftingIngredient(int slot, int recipeIndex)
 	{
 		auto recipe = recipes.at(recipeIndex);
 		int x = 0;
 		int y = 0;
-		auto ingredientRef = recipe->getIngredient(x, y);
-		auto ingredients = ingredientRef.mImpl->getAllItems();
+		switch (slot) {
+		case 0:
+			x = 0; y = 0;
+			break;
+		case 1:
+			x = 1; y = 0;
+			break;
+		case 2:
+			x = 2; y = 0;
+			break;
+		case 3:
+			x = 0; y = 1;
+			break;
+		case 4:
+			x = 1; y = 1;
+			break;
+		case 5:
+			x = 2; y = 1;
+			break;
+		case 6:
+			x = 0; y = 2;
+			break;
+		case 7:
+			x = 1; y = 2;
+			break;
+		case 8:
+			x = 2; y = 2;
+			break;
+		}
+		auto& ingredientRef = recipe->getIngredient(x, y);
+		if (ingredientRef.mStackSize == 0) return ItemStack::EMPTY_ITEM;
+
+		auto ingredients = ingredientRef.mImpl->getAllItems(); // all possible ingredient
 		auto ingredient = ingredients.front();
 
 		ItemStack stack;

@@ -34,15 +34,9 @@ namespace TMI
 {
 	class RecipeBrowserScreenController : public ClientInstanceScreenController {
 	public:
-		const Item* mItem;
-		RecipeBrowserScreenController(std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, const Item* item);
+		Item& mItem;
+		RecipeBrowserScreenController(std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, Item& item);
 		void _registerBindings();
-
-		virtual void onDelete() override;
-		virtual ui::ViewRequest tryExit() override;
-		virtual void leaveScreen(const std::string&) override;
-		virtual void onDictationEvent(const std::string&) override;
-		virtual void onLeave() override;
 	};
 
 	void RegisterOffhandHud();
