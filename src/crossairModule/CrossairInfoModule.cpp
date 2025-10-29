@@ -106,16 +106,11 @@ void CrossairInfoModule::OnAfterRenderUi(BeforeRenderUIEvent event) {
 			ItemStack* stack = new ItemStack();
 			const auto& legacyBlock = block.mLegacyBlock;
 			stack->reinit(*legacyBlock, 1);
+			stack->mShowPickup = false;
 
 			// Render the item
-			auto mat = Matrix::IDENTITY;
-			float scaleX = 2.6f;
-			mat.scale(scaleX, 1.0f, 1.0f);
-
-			//renderCtxPtr.mScreenContext->camera->worldMatrixStack.push(mat);
-			renderCtxPtr.itemRenderer->renderGuiItemNew(&renderCtxPtr, stack, 0, (x + padding) / scaleX - 4, y + padding + 6, false, 1.0f, 1.0f, 0.95f);
+			renderCtxPtr.itemRenderer->renderGuiItemNew(&renderCtxPtr, stack, 0, (x + padding), y + padding, false, 1.0f, 1.0f, 1.25f);
 			ctx.flushImages(mce::Color::WHITE, 1.0f, "ui_flush");
-			//renderCtxPtr.mScreenContext->camera->worldMatrixStack.pop();
 			
 
 

@@ -23,10 +23,6 @@
             }
         ]
     },
-    "slot_item_template@tmi_common.slot_button": {
-        "$item_collection_name": "container_items"
-    },
-    
     "slot_button": {
         "type": "panel",
         "size": [
@@ -110,5 +106,107 @@
                 }
             }
         ]
+    },
+    
+    "overlay_slot_bg@common.button": {
+        "layer": 2,
+        "controls": [
+            {
+                "default": {
+                }
+            },
+            {
+                "hover": {
+                    "type": "image",
+                    "texture": "textures/ui/slot_disabled_hover"
+                }
+            },
+            {
+                "pressed": {
+                }
+            }
+        ]
+    },
+    "overlay_slot": {
+        "type": "panel",
+        "size": [
+            18,
+            18
+        ],
+        "$tmi_slot_id|default": -1,
+        "controls": [
+            {
+                "slot_bg@tmi_common.overlay_slot_bg": {
+                    "property_bag": {
+                        "#tmi_slot_id": "$tmi_slot_id"
+                    },
+                    "bindings": [
+                        {
+                            "binding_type": "collection_details",
+                            "binding_collection_name": "item_grid"
+                        },
+                        {
+                            "binding_name": "#collection_index",
+                            "binding_type": "collection",
+                            "binding_collection_name": "item_grid"
+                        },
+                        {
+                            "binding_type": "view",
+                            "source_property_name": "#collection_index",
+                            "target_property_name": "#tmi_slot_id"
+                        }
+                    ],
+                    "button_mappings": [
+                        // Trigger this button if it's right clicked
+                        {
+                            "from_button_id": "button.menu_secondary_select",
+                            "to_button_id": "tmi_overlay_slot_pressed_secondary",
+                            "mapping_type": "pressed"
+                        },
+                        {
+                            "from_button_id": "button.menu_select",
+                            "to_button_id": "tmi_overlay_slot_pressed",
+                            "mapping_type": "pressed"
+                        }
+                    ]
+                }
+            },
+            {
+                "0": {
+                    "type": "custom",
+                    "renderer": "tmi_overlay_slot_renderer",
+                    "size": [
+                        18,
+                        18
+                    ],
+                    "layer": 3,
+                    "property_bag": {
+                        "#tmi_slot_id": "$tmi_slot_id"
+                    },
+                    "bindings": [
+                        {
+                            "binding_type": "collection_details",
+                            "binding_collection_name": "item_grid"
+                        },
+                        {
+                            "binding_name": "#collection_index",
+                            "binding_type": "collection",
+                            "binding_collection_name": "item_grid"
+                        },
+                        {
+                            "binding_type": "view",
+                            "source_property_name": "#collection_index",
+                            "target_property_name": "#tmi_slot_id"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "slot_item_template@tmi_common.slot_button": {
+        "$item_collection_name": "container_items"
+    },
+    "overlay_item_template@tmi_common.overlay_slot": {
+        "$item_collection_name": "item_grid"
     }
 }

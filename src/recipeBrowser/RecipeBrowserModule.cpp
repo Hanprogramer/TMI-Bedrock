@@ -1,11 +1,13 @@
 #include "RecipeBrowserModule.hpp"
 
 namespace TMI {
-	ItemStack selectedItemStack;
-	ItemStack currentHoveredStack;
-	int mode = 0;
-	int currentPage = 0;
-	int maxPage = 0;
+	ItemStack mRecipeWindowSelectedItemStack;
+	ItemStack mHoveredStack;
+	int mRecipeWindowCurrentPage = 0;
+	int mRecipeWindowMaxPage = 0;
+	int mOverlayPage = 0;
+	int mOverlayMaxPage = 0;
+	int mOverlayItemPerPage = 0;
 	std::vector<std::shared_ptr<Recipe>> recipes;
 
 	bool initialized = false;
@@ -125,89 +127,34 @@ namespace TMI {
 		const std::string name = event.screen.visualTree->mRootControlName->mName;
 		auto& mc = Amethyst::GetClientCtx().mClientInstance;
 		auto& ctx = event.ctx;
-		if (name == "inventory_screen")
+
+		if (mc->mClientState != ClientInstanceState::Playing) return;
+
+
+		if (!initialized)
 		{
-			if (!initialized)
-			{
 
-				ItemRegistryRef itemRegistryRef = mc->getLocalPlayer()->getLevel()->getItemRegistry();
-				std::shared_ptr<ItemRegistry> sharedRegistryPtr = itemRegistryRef._lockRegistry();
-				ItemRegistry& itemRegistry = *sharedRegistryPtr;
+			ItemRegistryRef itemRegistryRef = mc->getLocalPlayer()->getLevel()->getItemRegistry();
+			std::shared_ptr<ItemRegistry> sharedRegistryPtr = itemRegistryRef._lockRegistry();
+			ItemRegistry& itemRegistry = *sharedRegistryPtr;
 
-				for (int i = 0; i < itemRegistry.mMaxItemID; i++) {
-					auto itemRef = itemRegistry.mIdToItemMap[i];
-					if (!itemRef.isNull()) {
-						Item& item = *itemRef;
-						ItemStack stack;
-						stack.reinit(item, 1, 0);
-						itemMap.insert(std::pair<std::string, ItemStack>(item.getFullItemName(), stack));
-						itemCount++;
-					}
+			for (int i = 0; i < itemRegistry.mMaxItemID; i++) {
+				auto itemRef = itemRegistry.mIdToItemMap[i];
+				if (!itemRef.isNull()) {
+					Item& item = *itemRef;
+					ItemStack stack;
+					stack.reinit(item, 1, 0);
+					itemMap.insert(std::pair<std::string, ItemStack>(item.getFullItemName(), stack));
+					itemCount++;
 				}
-
-				initialized = true;
-
 			}
-			BaseActorRenderContext renderCtxPtr = BaseActorRenderContext(*ctx.mScreenContext, *ctx.mClient, *ctx.mClient->mMinecraftGame);
-			int i = 0;
-			int y = 0;
-			int x = 0;
-			const int width = 20;
-			const int height = 20;
-			int mposXX = mposX / mc->mGuiData->mGuiScale;
-			int mposYY = mposY / mc->mGuiData->mGuiScale;
-			int hovered = -1;
-			std::string hoveredID = "";
-			for (const auto& [key, stack] : itemMap) {
-				int xx = x * width;
-				int yy = y * height;
-				if (mposXX > xx && mposXX < xx + width && mposYY > yy && mposYY < yy + height) {
-					// Draw hover bg
-					ctx.fillRectangle(RectangleArea(xx, xx + width, yy, yy + height), mce::Color(1.0f, 1.0f, 1.0f, 0.5f), 0.5f);
-					hovered = i;
-					hoveredID = key;
-					currentHoveredStack = stack;
-					if (isMouseJustReleased) {
-						// Open the screen
-						auto& clientInstance = *Amethyst::GetClientCtx().mClientInstance;
-						auto& game = *clientInstance.mMinecraftGame;
-						auto& factory = *clientInstance.mSceneFactory;
-						auto model = SceneCreationUtils::_createModel<ClientInstanceScreenModel>(
-							factory,
-							game,
-							clientInstance,
-							factory.mAdvancedGraphicOptions
-						);
-						auto interactionModel = ContainerScreenController::interactionModelFromUIProfile(model->getUIProfile());
-						auto& item = *stack.getItem();
-						if (TMI::setRecipesForItem(item)) {
-							ItemStack clone = ItemStack(stack);
-							ItemStack& cloneAddr = clone;
-							auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, cloneAddr);
-
-							auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
-							auto screen = factory._createScreen(scene);
-							factory.getCurrentSceneStack()->pushScreen(screen, false);
-						}
-					}
-				}
-				renderCtxPtr.itemRenderer->renderGuiItemNew(&renderCtxPtr, &stack, 0, xx + 2, yy + 2, false, 1.0f, 1.0f, 0.95f);
-				x++;
-				if (x > 5) {
-					x = 0;
-					y += 1;
-				}
-				i++;
-				if (i > 200) break;
-			}
-			ctx.flushImages(mce::Color::WHITE, 1.0f, "ui_flush");
+			initialized = true;
 		}
-		isMouseJustReleased = false;
 
 		// Render custom tooltip renderer
-		if (!currentHoveredStack.isNull())
-			drawFakeTooltip(currentHoveredStack, ctx);
-		currentHoveredStack = ItemStack::EMPTY_ITEM;
+		if (!mHoveredStack.isNull())
+			drawFakeTooltip(mHoveredStack, ctx);
+		mHoveredStack = ItemStack::EMPTY_ITEM;
 	}
 
 	void OnBeforeRenderUI(BeforeRenderUIEvent event) {
@@ -236,11 +183,31 @@ namespace TMI {
 		RegisterCustomUIRenderers();
 	}
 
+	void showRecipesWindow()
+	{
+		auto& stack = mRecipeWindowSelectedItemStack;
+		auto& clientInstance = *Amethyst::GetClientCtx().mClientInstance;
+		auto& game = *clientInstance.mMinecraftGame;
+		auto& factory = *clientInstance.mSceneFactory;
+		auto model = SceneCreationUtils::_createModel<ClientInstanceScreenModel>(
+			factory,
+			game,
+			clientInstance,
+			factory.mAdvancedGraphicOptions
+		);
+		auto interactionModel = ContainerScreenController::interactionModelFromUIProfile(model->getUIProfile());
+		auto& item = *stack.getItem();
+		auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, mRecipeWindowSelectedItemStack);
+		auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
+		auto screen = factory._createScreen(scene);
+		factory.getCurrentSceneStack()->pushScreen(screen, false);
+	}
+
 	bool setRecipesForItem(Item& item)
 	{
 		ItemStack stack;
 		stack.reinit(item, 1, 0);
-		selectedItemStack = stack;
+		mRecipeWindowSelectedItemStack = stack;
 		recipes.clear();
 
 		Recipes& lrecipes = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getRecipes();
@@ -249,17 +216,17 @@ namespace TMI {
 			if (results.empty()) continue;
 			const ItemInstance& result = results.front();
 			if (result == NULL || result.isNull()) {
-				Log::Info("Recipe '{}' has no result. Result NULL", recipe->mRecipeId);
+				//Log::Info("Recipe '{}' has no result. Result NULL", recipe->mRecipeId);
 				continue;
 			}
 			if (result.getItem()->mId == item.mId) {
 				recipes.push_back(recipe);
-				Log::Info("Recipe '{}' match the result type", recipe->mRecipeId);
+				//Log::Info("Recipe '{}' match the result type", recipe->mRecipeId);
 			}
 		}
 
-		currentPage = 0;
-		maxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
+		mRecipeWindowCurrentPage = 0;
+		mRecipeWindowMaxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
 
 		return recipes.size() > 0;
 	}
@@ -268,7 +235,7 @@ namespace TMI {
 	{
 		ItemStack stack;
 		stack.reinit(item, 1, 0);
-		selectedItemStack = stack;
+		mRecipeWindowSelectedItemStack = stack;
 		recipes.clear();
 
 		Recipes& lrecipes = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getRecipes();
@@ -318,8 +285,8 @@ namespace TMI {
 		finish: {}
 		}
 
-		currentPage = 0;
-		maxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
+		mRecipeWindowCurrentPage = 0;
+		mRecipeWindowMaxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
 
 		return recipes.size() > 0;
 	}
@@ -385,5 +352,16 @@ namespace TMI {
 	}
 	int recipeCount() {
 		return recipes.size();
+	}
+	int overlayItemCount() {
+		return itemMap.size();
+	}
+	ItemStack& getOverlayItem(int slotIndex)
+	{
+		auto result = ItemStack();
+
+		auto it = itemMap.begin();
+		std::advance(it, slotIndex);
+		return it->second;
 	}
 }

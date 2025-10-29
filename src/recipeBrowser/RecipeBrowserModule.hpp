@@ -29,20 +29,27 @@
 #include <mc/src/common/world/item/ItemInstance.hpp>
 #include <mc/src/common/Minecraft.hpp>
 namespace TMI {
-    extern ItemStack selectedItemStack;
-    extern ItemStack currentHoveredStack;
-    extern int mode; // 0 - from, 1 - of
-    extern int currentPage;
-    extern int maxPage;
+    extern ItemStack mRecipeWindowSelectedItemStack;
+    extern ItemStack mHoveredStack;
+    extern int mRecipeWindowCurrentPage;
+    extern int mRecipeWindowMaxPage;
+
+    extern int mOverlayPage;
+    extern int mOverlayMaxPage;
+    extern int mOverlayItemPerPage;
+
     extern std::vector<std::shared_ptr<Recipe>> recipes;
 
     void initRecipeBrowser();
 
+    void showRecipesWindow();
     bool setRecipesForItem(Item& item);
     bool setRecipesFromItem(Item& item);
     ItemStack getCraftingIngredient(int slot, int recipeIndex);
     ItemStack getResult(int recipeIndex);
     int recipeCount();
+    int overlayItemCount();
+    ItemStack& getOverlayItem(int slotIndex);
 
     std::string getItemName(ItemStack& stack);
     void drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx);
