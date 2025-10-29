@@ -183,7 +183,7 @@
                                     {
                                         "nextBtn@common_buttons.light_text_button": {
                                             "$button_text": "Settings",
-                                            "$pressed_button_name": "tmi_page_text",
+                                            "$pressed_button_name": "tmi_settings",
                                             "size": [
                                                 18,
                                                 18

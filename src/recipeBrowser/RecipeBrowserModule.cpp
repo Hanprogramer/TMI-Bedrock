@@ -207,8 +207,7 @@ namespace TMI {
 	{
 		ItemStack stack;
 		stack.reinit(item, 1, 0);
-		mRecipeWindowSelectedItemStack = stack;
-		recipes.clear();
+		std::vector<std::shared_ptr<Recipe>> resultRecipes;
 
 		Recipes& lrecipes = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getRecipes();
 		for (const auto& [recipeId, recipe] : lrecipes.mRecipes["crafting_table"]) {
@@ -216,19 +215,22 @@ namespace TMI {
 			if (results.empty()) continue;
 			const ItemInstance& result = results.front();
 			if (result == NULL || result.isNull()) {
-				//Log::Info("Recipe '{}' has no result. Result NULL", recipe->mRecipeId);
 				continue;
 			}
 			if (result.getItem()->mId == item.mId) {
-				recipes.push_back(recipe);
-				//Log::Info("Recipe '{}' match the result type", recipe->mRecipeId);
+				resultRecipes.push_back(recipe);
 			}
 		}
 
-		mRecipeWindowCurrentPage = 0;
-		mRecipeWindowMaxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
+		if (resultRecipes.size() > 0) {
+			recipes = resultRecipes;
+			mRecipeWindowSelectedItemStack = stack;
+			mRecipeWindowCurrentPage = 0;
+			mRecipeWindowMaxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
+			return true;
+		}
 
-		return recipes.size() > 0;
+		return false;
 	}
 
 	bool setRecipesFromItem(Item& item)
@@ -236,7 +238,7 @@ namespace TMI {
 		ItemStack stack;
 		stack.reinit(item, 1, 0);
 		mRecipeWindowSelectedItemStack = stack;
-		recipes.clear();
+		std::vector<std::shared_ptr<Recipe>> resultRecipes;
 
 		Recipes& lrecipes = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getRecipes();
 		for (const auto& [recipeId, recipe] : lrecipes.mRecipes["crafting_table"]) {
@@ -277,7 +279,7 @@ namespace TMI {
 				auto items = ingredients.mImpl->getAllItems();
 				for (int j = 0; j < items.size(); j++) {
 					if (items[j].mItem->mId == item.mId) {
-						recipes.push_back(recipe);
+						resultRecipes.push_back(recipe);
 						goto finish;
 					}
 				}
@@ -285,10 +287,14 @@ namespace TMI {
 		finish: {}
 		}
 
-		mRecipeWindowCurrentPage = 0;
-		mRecipeWindowMaxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
+		if (resultRecipes.size() > 0) {
+			recipes = resultRecipes;
+			mRecipeWindowCurrentPage = 0;
+			mRecipeWindowMaxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
+			return true;
+		}
 
-		return recipes.size() > 0;
+		return false;
 	}
 
 	ItemStack getCraftingIngredient(int slot, int recipeIndex)
