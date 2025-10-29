@@ -28,11 +28,13 @@
 #include "RecipeBrowserScreenController.hpp"
 #include <mc/src/common/world/item/ItemInstance.hpp>
 #include <mc/src/common/Minecraft.hpp>
+
 namespace TMI {
     extern ItemStack mRecipeWindowSelectedItemStack;
     extern ItemStack mHoveredStack;
     extern int mRecipeWindowCurrentPage;
     extern int mRecipeWindowMaxPage;
+    extern std::string searchQuery;
 
     extern int mOverlayPage;
     extern int mOverlayMaxPage;
@@ -55,4 +57,5 @@ namespace TMI {
     void drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx);
     void OnAfterRenderUI(AfterRenderUIEvent event);
     void OnBeforeRenderUI(BeforeRenderUIEvent event);
+    void setSearchQuery(std::string newQuery);
 }

@@ -9,10 +9,13 @@ namespace TMI {
 	int mOverlayMaxPage = 0;
 	int mOverlayItemPerPage = 0;
 	std::vector<std::shared_ptr<Recipe>> recipes;
+	std::string searchQuery;
 
 	bool initialized = false;
 
 	std::map<std::string, ItemStack> itemMap;
+	std::vector<ItemStack> queriedItems;
+
 	int itemCount = 0;
 	int mposX = 0;
 	int mposY = 0;
@@ -133,10 +136,10 @@ namespace TMI {
 
 		if (!initialized)
 		{
-
 			ItemRegistryRef itemRegistryRef = mc->getLocalPlayer()->getLevel()->getItemRegistry();
 			std::shared_ptr<ItemRegistry> sharedRegistryPtr = itemRegistryRef._lockRegistry();
 			ItemRegistry& itemRegistry = *sharedRegistryPtr;
+
 
 			for (int i = 0; i < itemRegistry.mMaxItemID; i++) {
 				auto itemRef = itemRegistry.mIdToItemMap[i];
@@ -148,6 +151,8 @@ namespace TMI {
 					itemCount++;
 				}
 			}
+
+			setSearchQuery("");
 			initialized = true;
 		}
 
@@ -158,6 +163,30 @@ namespace TMI {
 	}
 
 	void OnBeforeRenderUI(BeforeRenderUIEvent event) {
+	}
+
+	void setSearchQuery(std::string newQuery)
+	{
+		searchQuery = newQuery;
+		queriedItems.clear();
+
+		if (newQuery.empty()) {
+			for (const auto& [idName, stack] : itemMap) {
+				queriedItems.push_back(stack);
+			}
+		}
+		else {
+			for (const auto& [idName, stack] : itemMap) {
+				if (idName.contains(newQuery)) {
+					queriedItems.push_back(stack);
+					continue;
+				}
+				if (stack.getItem()->mFullName.getString().contains(newQuery)) {
+					queriedItems.push_back(stack);
+					continue;
+				}
+			}
+		}
 	}
 
 	void OnMouseInput(MouseInputEvent event) {
@@ -180,7 +209,7 @@ namespace TMI {
 		Amethyst::GetEventBus().AddListener<AfterRenderUIEvent>(&OnAfterRenderUI);
 		Amethyst::GetEventBus().AddListener<BeforeRenderUIEvent>(&OnBeforeRenderUI);
 		Amethyst::GetEventBus().AddListener<MouseInputEvent>(&OnMouseInput);
-		RegisterCustomUIRenderers();
+		RegisterHooks();
 	}
 
 	void showRecipesWindow()
@@ -360,14 +389,10 @@ namespace TMI {
 		return recipes.size();
 	}
 	int overlayItemCount() {
-		return itemMap.size();
+		return queriedItems.size();
 	}
-	ItemStack& getOverlayItem(int slotIndex)
+	ItemStack& getOverlayItem(int index)
 	{
-		auto result = ItemStack();
-
-		auto it = itemMap.begin();
-		std::advance(it, slotIndex);
-		return it->second;
+		return queriedItems.at(index);
 	}
 }

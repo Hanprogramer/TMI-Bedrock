@@ -28,7 +28,7 @@
 #include <mc/src-client/common/client/gui/UIResolvedDef.hpp>
 #include <mc/src-client/common/client/gui/controls/CustomRenderComponent.hpp>
 #include <mc/src-client/common/client/gui/controls/UIPropertyBag.hpp>
-
+#include <mc/src-client/common/client/gui/screens/ScreenEvent.hpp>
 
 namespace TMI
 {
@@ -41,5 +41,5 @@ namespace TMI
 		void _registerBindings();
 	};
 
-	void RegisterCustomUIRenderers();
+	void RegisterHooks();
 }

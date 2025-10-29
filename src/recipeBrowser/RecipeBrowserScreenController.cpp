@@ -194,6 +194,7 @@ namespace TMI {
 
 	SafetyHookInline _UIControlFactory__populateCustomRenderComponent;
 	SafetyHookInline _CraftingScreenController__registerBindings;
+	SafetyHookInline _CraftingScreenController_handleEvent;
 
 	void UIControlFactory__populateCustomRenderComponent(UIControlFactory* self, const UIResolvedDef& resolved, UIControl& control) {
 		std::string rendererType = resolved.getAsString("renderer");
@@ -275,12 +276,26 @@ namespace TMI {
 		_CraftingScreenController__registerBindings.call<void, CraftingScreenController*>(self);
 	}
 
+	ui::ViewRequest CraftingScreenController_handleEvent(CraftingScreenController* self, ScreenEvent& event) {
+		if (event.type == ScreenEventType::TextEditChange) {
+			if (event.data.textEdit.properties != nullptr) {
+				if (StringToNameId("tmi_search_box") == event.data.textEdit.id) {
+					auto newText = event.data.textEdit.properties->mJsonValue.get(std::string("#item_name"), Json::Value("")).asString();
+					TMI::setSearchQuery(newText);
+					/*return ui::ViewRequest::Refresh;*/
+				}
+			}
+		}
+		return _CraftingScreenController_handleEvent.call<ui::ViewRequest, CraftingScreenController*, ScreenEvent&>(self, event);
+	}
 
-	void RegisterCustomUIRenderers()
+
+	void RegisterHooks()
 	{
 		Amethyst::HookManager& hooks = Amethyst::GetHookManager();
 		HOOK(UIControlFactory, _populateCustomRenderComponent);
 		HOOK(CraftingScreenController, _registerBindings);
+		VHOOK(CraftingScreenController, handleEvent, this);
 	}
 
 	RecipeBrowserScreenController::RecipeBrowserScreenController(std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, ItemStack& itemStack) : ClientInstanceScreenController(model), mItemStack(itemStack)
