@@ -67,6 +67,11 @@
                             "from_button_id": "button.menu_secondary_select",
                             "to_button_id": "tmi_slot_pressed_secondary",
                             "mapping_type": "pressed"
+                        },
+                        {
+                            "from_button_id": "button.menu_select",
+                            "to_button_id": "tmi_slot_pressed",
+                            "mapping_type": "pressed"
                         }
                     ]
                 }

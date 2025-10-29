@@ -233,7 +233,7 @@ namespace TMI {
 		Amethyst::GetEventBus().AddListener<AfterRenderUIEvent>(&OnAfterRenderUI);
 		Amethyst::GetEventBus().AddListener<BeforeRenderUIEvent>(&OnBeforeRenderUI);
 		Amethyst::GetEventBus().AddListener<MouseInputEvent>(&OnMouseInput);
-		RegisterOffhandHud();
+		RegisterCustomUIRenderers();
 	}
 
 	bool setRecipesForItem(Item& item)

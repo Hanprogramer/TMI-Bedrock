@@ -101,7 +101,7 @@ namespace TMI {
 	}
 
 
-	void RegisterOffhandHud()
+	void RegisterCustomUIRenderers()
 	{
 		Amethyst::HookManager& hooks = Amethyst::GetHookManager();
 		HOOK(UIControlFactory, _populateCustomRenderComponent);

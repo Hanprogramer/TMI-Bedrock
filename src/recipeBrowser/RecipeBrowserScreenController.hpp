@@ -39,5 +39,5 @@ namespace TMI
 		void _registerBindings();
 	};
 
-	void RegisterOffhandHud();
+	void RegisterCustomUIRenderers();
 }
