@@ -187,6 +187,7 @@ namespace TMI {
 					TMI::mOverlayMaxPage = 0;
 
 				owner.mChildren.front()->mPropertyBag->mJsonValue["#tmi_grid_size"] = json;
+				refreshPage();
 			}
 		}
 	};

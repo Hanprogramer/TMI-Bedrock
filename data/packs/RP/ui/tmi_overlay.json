@@ -67,21 +67,28 @@
                                         }
                                     },
                                     {
-                                        "title": {
-                                            "type": "label",
-                                            "text": "#text",
+                                        "title_panel": {
+                                            "type": "panel",
                                             "size": [
                                                 "fill",
                                                 "default"
                                             ],
-                                            "anchor_from": "left_middle",
-                                            "anchor_to": "left_middle",
-                                            "text_alignment": "center",
-                                            "bindings": [
+                                            "controls": [
                                                 {
-                                                    "binding_name": "#tmi_page_text",
-                                                    "binding_name_override": "#text",
-                                                    "binding_condition": "always_when_visible"
+                                                    "title": {
+                                                        "type": "label",
+                                                        "text": "#text",
+                                                        "anchor_from": "center",
+                                                        "anchor_to": "center",
+                                                        "text_alignment": "center",
+                                                        "bindings": [
+                                                            {
+                                                                "binding_name": "#tmi_page_text",
+                                                                "binding_name_override": "#text",
+                                                                "binding_condition": "always_when_visible"
+                                                            }
+                                                        ]
+                                                    }
                                                 }
                                             ]
                                         }
