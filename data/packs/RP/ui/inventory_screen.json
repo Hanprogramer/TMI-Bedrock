@@ -1,0 +1,16 @@
+{
+    "namespace": "crafting",
+    "recipe_inventory_screen_content": {
+        "modifications": [
+            {
+                "array_name": "controls",
+                "operation": "insert_front",
+                "value": [
+                    {
+                        "tmi_overlay@tmi.tmi_overlay": {}
+                    }
+                ]
+            }
+        ]
+    }
+}

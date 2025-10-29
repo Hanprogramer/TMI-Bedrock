@@ -1,12 +1,12 @@
 #include "RecipeBrowserScreenController.hpp"
 
 namespace TMI {
-	class TestRenderer : public MinecraftUICustomRenderer {
+	class RecipeSlotRenderer : public MinecraftUICustomRenderer {
 	public:
-		TestRenderer() : MinecraftUICustomRenderer() {};
+		RecipeSlotRenderer() : MinecraftUICustomRenderer() {};
 
 		virtual std::shared_ptr<UICustomRenderer> clone() const override {
-			return std::make_shared<TestRenderer>();
+			return std::make_shared<RecipeSlotRenderer>();
 		}
 
 		virtual void render(MinecraftUIRenderContext& ctx, IClientInstance& _client, UIControl& owner, int32_t pass, RectangleArea& renderAABB) override {
@@ -84,15 +84,15 @@ namespace TMI {
 	void UIControlFactory__populateCustomRenderComponent(UIControlFactory* self, const UIResolvedDef& resolved, UIControl& control) {
 		std::string rendererType = resolved.getAsString("renderer");
 
-		if (rendererType == "offhand_hud_renderer") {
-			Log::Info("Making offhand_hud_renderer!");
+		if (rendererType == "tmi_recipe_slot_renderer") {
+			Log::Info("Making tmi_recipe_slot_renderer!");
 
 			control.setComponent<CustomRenderComponent>(
 				std::make_unique<CustomRenderComponent>(control)
 			);
 
 			CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
-			component->setRenderer(std::make_shared<TestRenderer>());
+			component->setRenderer(std::make_shared<RecipeSlotRenderer>());
 
 			return;
 		}

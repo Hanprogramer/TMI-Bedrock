@@ -1,0 +1,30 @@
+{
+    "namespace": "tmi",
+    "tmi_overlay": {
+        "type": "panel",
+        "anchor_from": "left_middle",
+        "anchor_to": "left_middle",
+        "size": [
+            150,
+            "100%"
+        ],
+        "controls": [
+            {
+                "bg": {
+                    "type": "image",
+                    "texture": "textures/ui/Black",
+                    "alpha": 0.55,
+                    "size": [
+                        "100%",
+                        "100%"
+                    ],
+                    "anchor_from": "top_left",
+                    "anchor_to": "top_left",
+                    "keep_ratio": false,
+                    "fill": true,
+                    "layer": 1
+                }
+            }
+        ]
+    }
+}

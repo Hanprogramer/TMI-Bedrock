@@ -2,6 +2,8 @@
   // Alphabetical order please :)
   "ui_defs": [
     "ui/recipe_screen.json",
-    "ui/tmi_common.json"
+    "ui/tmi_common.json",
+    "ui/tmi_overlay.json",
+    "ui/inventory_screen.json"
   ]
 }
