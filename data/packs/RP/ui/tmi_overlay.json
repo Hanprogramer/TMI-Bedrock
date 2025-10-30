@@ -1,5 +1,14 @@
 {
     "namespace": "tmi",
+    "settings_icon": {
+        "type": "image",
+        "texture": "textures/ui/icon_setting",
+        "layer": 3,
+        "size": [
+            12,
+            12
+        ]
+    },
     "tmi_overlay": {
         "type": "panel",
         "anchor_from": "left_middle",
@@ -177,29 +186,40 @@
                                                 "#property_field": "#item_name"
                                             },
                                             "max_length": 30,
-                                            "$text_edit_binding_name": "#text_box_item_name",
+                                            // "$text_edit_binding_name": "#text_box_item_name",
                                             "$text_box_name": "tmi_search_box"
                                         }
                                     },
                                     {
-                                        "nextBtn@common_buttons.light_text_button": {
-                                            "$button_text": "Settings",
-                                            "$pressed_button_name": "tmi_settings",
+                                        "settings_btn_panel": {
+                                            "type": "panel",
                                             "size": [
                                                 18,
                                                 18
                                             ],
-                                            "anchor_from": "right_middle",
-                                            "anchor_to": "right_middle",
                                             "offset": [
                                                 -6,
                                                 0
                                             ],
-                                            "layer": 2,
-                                            "bindings": [
+                                            "controls": [
                                                 {
-                                                    "binding_name": "#nextBtnVisible",
-                                                    "binding_name_override": "#visible"
+                                                    "btn@common_buttons.light_text_button": {
+                                                        "$pressed_button_name": "tmi_settings",
+                                                        "size": [
+                                                            18,
+                                                            18
+                                                        ],
+                                                        "anchor_from": "center",
+                                                        "anchor_to": "center",
+                                                        "layer": 2
+                                                    }
+                                                },
+                                                {
+                                                    "icon@tmi.settings_icon": {
+                                                        "anchor_from": "center",
+                                                        "anchor_to": "center",
+                                                        "layer": 12
+                                                    }
                                                 }
                                             ]
                                         }

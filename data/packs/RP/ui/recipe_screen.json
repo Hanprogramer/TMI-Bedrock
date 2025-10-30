@@ -262,6 +262,12 @@
                                             ]
                                         }
                                     }
+                                ],
+                                "bindings": [
+                                    {
+                                        "binding_name": "(#recipe_type = 'crafting_recipe')",
+                                        "binding_name_override": "#visible"
+                                    }
                                 ]
                             }
                         },

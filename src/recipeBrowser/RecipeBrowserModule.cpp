@@ -8,13 +8,19 @@ namespace TMI {
 	int mOverlayPage = 0;
 	int mOverlayMaxPage = 0;
 	int mOverlayItemPerPage = 0;
-	std::vector<std::shared_ptr<Recipe>> recipes;
+	std::vector<std::shared_ptr<Recipe>> mCraftingRecipes;
+	std::vector<std::pair<ItemStack, ItemInstance>> mFurnaceRecipes;
 	std::string searchQuery;
 
 	bool initialized = false;
 
 	std::map<std::string, ItemStack> itemMap;
 	std::vector<ItemStack> queriedItems;
+
+	int mAnimCounter = 0;
+	int mAnimCounterTime = 90;
+	int mAnimIndex = 0;
+
 
 	int itemCount = 0;
 	int mposX = 0;
@@ -132,17 +138,26 @@ namespace TMI {
 		auto& ctx = event.ctx;
 
 		if (mc->mClientState != ClientInstanceState::Playing) return;
-
-
 		if (!initialized)
 		{
+			// Regisster blocks
+			auto blockRegistryRef = mc->getLocalPlayer()->getLevel()->getBlockRegistry();
+			if (auto blockRegistry = blockRegistryRef.lock()) {
+				for (const auto& [id, block] : blockRegistry->mBlockLookupMap) {
+					auto stack = ItemStack();
+					stack.reinit(*block, 1);
+					if (stack.getItem() == nullptr) continue; // Skip blocks that can't be turned into item
+					itemMap.insert(std::pair<std::string, ItemStack>(id.getString(), stack));
+				}
+			}
+
+			// Register the items
 			ItemRegistryRef itemRegistryRef = mc->getLocalPlayer()->getLevel()->getItemRegistry();
 			std::shared_ptr<ItemRegistry> sharedRegistryPtr = itemRegistryRef._lockRegistry();
 			ItemRegistry& itemRegistry = *sharedRegistryPtr;
 
-
 			for (int i = 0; i < itemRegistry.mMaxItemID; i++) {
-				auto itemRef = itemRegistry.mIdToItemMap[i];
+				auto& itemRef = itemRegistry.mIdToItemMap[i];
 				if (!itemRef.isNull()) {
 					Item& item = *itemRef;
 					ItemStack stack;
@@ -163,6 +178,11 @@ namespace TMI {
 	}
 
 	void OnBeforeRenderUI(BeforeRenderUIEvent event) {
+		mAnimCounter++;
+		if (mAnimCounter > mAnimCounterTime) {
+			mAnimIndex++;
+			mAnimCounter = 0;
+		}
 	}
 
 	void setSearchQuery(std::string newQuery)
@@ -177,16 +197,22 @@ namespace TMI {
 		}
 		else {
 			for (const auto& [idName, stack] : itemMap) {
+				if (stack.isNull()) continue;
 				if (idName.contains(newQuery)) {
 					queriedItems.push_back(stack);
 					continue;
 				}
-				if (stack.getItem()->mFullName.getString().contains(newQuery)) {
-					queriedItems.push_back(stack);
-					continue;
+				auto item = stack.getItem();
+				if (item != nullptr) {
+					if (item->mFullName.getString().contains(newQuery)) {
+						queriedItems.push_back(stack);
+						continue;
+					}
 				}
 			}
 		}
+		if (mOverlayItemPerPage > 0)
+			mOverlayMaxPage = queriedItems.size() / mOverlayItemPerPage;
 	}
 
 	void OnMouseInput(MouseInputEvent event) {
@@ -234,10 +260,10 @@ namespace TMI {
 
 	bool setRecipesForItem(Item& item)
 	{
+		// Crafting recipes
 		ItemStack stack;
 		stack.reinit(item, 1, 0);
 		std::vector<std::shared_ptr<Recipe>> resultRecipes;
-
 		Recipes& lrecipes = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getRecipes();
 		for (const auto& [recipeId, recipe] : lrecipes.mRecipes["crafting_table"]) {
 			const std::vector<ItemInstance>& results = recipe->getResultItem();
@@ -251,11 +277,31 @@ namespace TMI {
 			}
 		}
 
-		if (resultRecipes.size() > 0) {
-			recipes = resultRecipes;
+		// Furnace recipes
+		auto& furnaceRecipes = lrecipes.mFurnaceRecipes;
+		auto& itemReg = *Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getItemRegistry()._lockRegistry();
+		std::vector<std::pair<ItemStack, ItemInstance>> resultFurnaceRecipes;
+		int size = furnaceRecipes.size();
+		for (auto& [key, result] : furnaceRecipes) {
+			if (key.mTag.getString() == "furnace") {
+				auto id = key.mID >> 16;
+				auto aux = static_cast<std::uint16_t>(key.mID);
+
+				if (itemReg.mIdToItemMap.contains(id)) {
+					auto& item = *itemReg.mIdToItemMap[id];
+					ItemStack stack;
+					stack.reinit(item, 1, aux);
+					resultFurnaceRecipes.push_back(std::make_pair(stack, result));
+				}
+			}
+		}
+
+		if (resultRecipes.size() > 0 || resultFurnaceRecipes.size() > 0) {
+			mCraftingRecipes = resultRecipes;
+			mFurnaceRecipes = resultFurnaceRecipes;
 			mRecipeWindowSelectedItemStack = stack;
 			mRecipeWindowCurrentPage = 0;
-			mRecipeWindowMaxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
+			mRecipeWindowMaxPage = std::max((int)(mCraftingRecipes.size() / 2.0) - 1, 0);
 			return true;
 		}
 
@@ -317,9 +363,9 @@ namespace TMI {
 		}
 
 		if (resultRecipes.size() > 0) {
-			recipes = resultRecipes;
+			mCraftingRecipes = resultRecipes;
 			mRecipeWindowCurrentPage = 0;
-			mRecipeWindowMaxPage = std::max((int)(recipes.size() / 2.0) - 1, 0);
+			mRecipeWindowMaxPage = std::max((int)(mCraftingRecipes.size() / 2.0) - 1, 0);
 			return true;
 		}
 
@@ -328,7 +374,7 @@ namespace TMI {
 
 	ItemStack getCraftingIngredient(int slot, int recipeIndex)
 	{
-		auto recipe = recipes.at(recipeIndex);
+		auto& recipe = mCraftingRecipes.at(recipeIndex);
 		int x = 0;
 		int y = 0;
 		switch (slot) {
@@ -364,20 +410,17 @@ namespace TMI {
 		if (ingredientRef.mStackSize == 0) return ItemStack::EMPTY_ITEM;
 
 		auto ingredients = ingredientRef.mImpl->getAllItems(); // all possible ingredient
-		auto ingredient = ingredients.front();
 
+		auto& desc = ingredients.front();
 		ItemStack stack;
-		const Item& item = *ingredient.mItem;
-
-		if (ingredient.hasAux())
-			stack.reinit(item, 1, ingredient.mAuxValue);
-		else
-			stack.reinit(item, 1, 0);
+		const Item& item = *desc.mItem;
+		stack.reinit(item, 1, desc.mAuxValue);
 		return stack;
+
 	}
 	ItemStack getResult(int recipeIndex)
 	{
-		auto& recipe = recipes.at(recipeIndex);
+		auto& recipe = mCraftingRecipes.at(recipeIndex);
 		auto& result = recipe->getResultItem().front();
 
 		ItemStack stack;
@@ -386,7 +429,7 @@ namespace TMI {
 		return stack;
 	}
 	int recipeCount() {
-		return recipes.size();
+		return mCraftingRecipes.size();
 	}
 	int overlayItemCount() {
 		return queriedItems.size();

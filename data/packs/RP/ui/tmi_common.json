@@ -107,13 +107,11 @@
             }
         ]
     },
-    
     "overlay_slot_bg@common.button": {
         "layer": 2,
         "controls": [
             {
-                "default": {
-                }
+                "default": {}
             },
             {
                 "hover": {
@@ -122,8 +120,7 @@
                 }
             },
             {
-                "pressed": {
-                }
+                "pressed": {}
             }
         ]
     },
@@ -201,6 +198,28 @@
                     ]
                 }
             }
+        ],
+        // "visible": "(#tmi_slot_id < 4)",
+        "bindings": [
+            // {
+            //     "binding_type": "collection_details",
+            //     "binding_collection_name": "item_grid"
+            // },
+            // {
+            //     "binding_name": "#collection_index",
+            //     "binding_type": "collection",
+            //     "binding_collection_name": "item_grid"
+            // },
+            // {
+            //     "binding_type": "view",
+            //     "source_property_name": "#collection_index",
+            //     "target_property_name": "#tmi_slot_id"
+            // },
+            // {
+            //     "binding_type": "view", // make this a viewing binding
+            //     "source_property_name": "(#collection_index < 10)", // detect when the title text string is not equal to "hello world"
+            //     "target_property_name": "#visible" // override the #visibility property depending on if "source_property_name" is true or false
+            // }
         ]
     },
     "slot_item_template@tmi_common.slot_button": {
@@ -208,5 +227,52 @@
     },
     "overlay_item_template@tmi_common.overlay_slot": {
         "$item_collection_name": "item_grid"
+    },
+    "tmi_tab_bg@common.button": {
+        "layer": 2,
+        "controls": [
+            {
+                "default": {
+                    "type": "image",
+                    "texture": "textures/ui/TabTopFront"
+                }
+            },
+            {
+                "hover": {
+                    "type": "image",
+                    "texture": "textures/ui/TabTopFrontHover"
+                }
+            },
+            {
+                "pressed": {
+                    "type": "image",
+                    "texture": "textures/ui/TabTopFront"
+                }
+            }
+        ]
+    },
+    "tmi_tab": {
+        "type": "panel",
+        "controls": [
+            {
+                "bg@tmi_common.tmi_tab_bg": {
+                    "layer": 2
+                }
+            },
+            {
+                "itemRenderer": {
+                    "type": "custom",
+                    "renderer": "tmi_tab_icon_renderer",
+                    "size": [
+                        18,
+                        18
+                    ],
+                    "layer": 3,
+                    "property_bag": {
+                        "#tmi_item_id": "minecraft:dirt"
+                    }
+                }
+            }
+        ]
     }
 }

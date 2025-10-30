@@ -40,7 +40,12 @@ namespace TMI {
     extern int mOverlayMaxPage;
     extern int mOverlayItemPerPage;
 
-    extern std::vector<std::shared_ptr<Recipe>> recipes;
+    extern int mAnimCounter; // for cycling between multiple items
+    extern int mAnimCounterTime;
+    extern int mAnimIndex;
+
+    extern std::vector<std::shared_ptr<Recipe>> mCraftingRecipes;
+    extern std::vector<std::pair<ItemStack, ItemInstance>> mFurnaceRecipes;
 
     void initRecipeBrowser();
 
@@ -58,4 +63,16 @@ namespace TMI {
     void OnAfterRenderUI(AfterRenderUIEvent event);
     void OnBeforeRenderUI(BeforeRenderUIEvent event);
     void setSearchQuery(std::string newQuery);
+
+    static void refreshPage() {
+        if (TMI::mRecipeWindowCurrentPage < 0)
+            TMI::mRecipeWindowCurrentPage = TMI::mRecipeWindowMaxPage;
+        if (TMI::mRecipeWindowCurrentPage > TMI::mRecipeWindowMaxPage)
+            TMI::mRecipeWindowCurrentPage = 0;
+
+        if (TMI::mOverlayPage < 0)
+            TMI::mOverlayPage = TMI::mOverlayMaxPage;
+        if (TMI::mOverlayPage > TMI::mOverlayMaxPage)
+            TMI::mOverlayPage = 0;
+    }
 }
