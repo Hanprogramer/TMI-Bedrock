@@ -1,39 +1,15 @@
 #include "RecipeBrowserModule.hpp"
+#include "RecipeBrowserScreenController.hpp"
 
 namespace TMI {
-	ItemStack mRecipeWindowSelectedItemStack;
-	ItemStack mHoveredStack;
-	int mRecipeWindowCurrentPage = 0;
-	int mRecipeWindowMaxPage = 0;
-	int mOverlayPage = 0;
-	int mOverlayMaxPage = 0;
-	int mOverlayItemPerPage = 0;
-	std::vector<std::shared_ptr<Recipe>> mCraftingRecipes;
-	std::vector<std::pair<ItemStack, ItemInstance>> mFurnaceRecipes;
-	std::string searchQuery;
 
-	bool initialized = false;
-
-	std::map<std::string, ItemStack> itemMap;
-	std::vector<ItemStack> queriedItems;
-
-	int mAnimCounter = 0;
-	int mAnimCounterTime = 90;
-	int mAnimIndex = 0;
+	SafetyHookInline _UIControlFactory__populateCustomRenderComponent;
+	SafetyHookInline _CraftingScreenController__registerBindings;
+	SafetyHookInline _CraftingScreenController_handleEvent;
+	RecipeBrowserModule* recipeMod;
 
 
-	int itemCount = 0;
-	int mposX = 0;
-	int mposY = 0;
-	boolean isMousePressed = false;
-	boolean isMouseJustReleased = false;
-
-	const char BUTTON_LEFT = 0x263b;
-	const char BUTTON_RIGHT = 0x263a;
-
-	char last_button;
-
-	std::string getModNameFromNamespace(std::string mNamespace) {
+	std::string RecipeBrowserModule::getModNameFromNamespace(std::string mNamespace) {
 		std::string itemNamespace = mNamespace;
 		std::string modName;
 		std::weak_ptr<const Amethyst::Mod> mod;
@@ -64,12 +40,12 @@ namespace TMI {
 		return modName;
 	}
 
-	std::string getItemName(ItemStack& stack) {
+	std::string RecipeBrowserModule::getItemName(ItemStack& stack) {
 		auto& item = *stack.getItem();
 		return item.buildDescriptionName(stack);
 	}
 
-	void drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx) {
+	void RecipeBrowserModule::drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx) {
 		if (stack.isNull()) return;
 		// Draw the background
 		ClientInstance& mc = *Amethyst::GetClientCtx().mClientInstance;
@@ -131,7 +107,7 @@ namespace TMI {
 		ctx.flushText(1.0f);
 	}
 
-	void OnAfterRenderUI(AfterRenderUIEvent event)
+	void RecipeBrowserModule::OnAfterRenderUI(AfterRenderUIEvent event)
 	{
 		const std::string name = event.screen.visualTree->mRootControlName->mName;
 		auto& mc = Amethyst::GetClientCtx().mClientInstance;
@@ -177,7 +153,7 @@ namespace TMI {
 		mHoveredStack = ItemStack::EMPTY_ITEM;
 	}
 
-	void OnBeforeRenderUI(BeforeRenderUIEvent event) {
+	void RecipeBrowserModule::OnBeforeRenderUI(BeforeRenderUIEvent event) {
 		mAnimCounter++;
 		if (mAnimCounter > mAnimCounterTime) {
 			mAnimIndex++;
@@ -185,7 +161,7 @@ namespace TMI {
 		}
 	}
 
-	void setSearchQuery(std::string newQuery)
+	void RecipeBrowserModule::setSearchQuery(std::string newQuery)
 	{
 		searchQuery = newQuery;
 		queriedItems.clear();
@@ -215,7 +191,16 @@ namespace TMI {
 			mOverlayMaxPage = queriedItems.size() / mOverlayItemPerPage;
 	}
 
-	void OnMouseInput(MouseInputEvent event) {
+	void RecipeBrowserModule::refreshOverlayPage()
+	{
+		if (mOverlayPage < 0)
+			mOverlayPage = mOverlayMaxPage;
+		if (mOverlayPage > mOverlayMaxPage)
+			mOverlayPage = 0;
+
+	}
+
+	void RecipeBrowserModule::OnMouseInput(MouseInputEvent event) {
 		mposX = event.x;
 		mposY = event.y;
 		boolean isPressed = !event.mButtonData == char();
@@ -230,15 +215,15 @@ namespace TMI {
 		//Log::Info("buttonData: {}, actionButtonId: {}", event.mButtonData, event.mActionButtonId);
 	}
 
-	void initRecipeBrowser()
+	void RecipeBrowserModule::initRecipeBrowser()
 	{
-		Amethyst::GetEventBus().AddListener<AfterRenderUIEvent>(&OnAfterRenderUI);
-		Amethyst::GetEventBus().AddListener<BeforeRenderUIEvent>(&OnBeforeRenderUI);
-		Amethyst::GetEventBus().AddListener<MouseInputEvent>(&OnMouseInput);
-		RegisterHooks();
+		Amethyst::GetEventBus().AddListener<AfterRenderUIEvent>([&](AfterRenderUIEvent ev) { OnAfterRenderUI(ev); });
+		Amethyst::GetEventBus().AddListener<BeforeRenderUIEvent>([&](BeforeRenderUIEvent ev) { OnBeforeRenderUI(ev); });
+		Amethyst::GetEventBus().AddListener<MouseInputEvent>([&](MouseInputEvent ev) { OnMouseInput(ev); });
+		RegisterHooks(this);
 	}
 
-	void showRecipesWindow()
+	void RecipeBrowserModule::showRecipesWindow()
 	{
 		auto& stack = mRecipeWindowSelectedItemStack;
 		auto& clientInstance = *Amethyst::GetClientCtx().mClientInstance;
@@ -252,13 +237,14 @@ namespace TMI {
 		);
 		auto interactionModel = ContainerScreenController::interactionModelFromUIProfile(model->getUIProfile());
 		auto& item = *stack.getItem();
-		auto controller = std::make_shared<RecipeBrowserScreenController>(model, interactionModel, mRecipeWindowSelectedItemStack);
+		auto controller = std::make_shared<RecipeBrowserScreenController>(this, model, interactionModel, mRecipeWindowSelectedItemStack);
+		this->controller = controller;
 		auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
 		auto screen = factory._createScreen(scene);
 		factory.getCurrentSceneStack()->pushScreen(screen, false);
 	}
 
-	bool setRecipesForItem(Item& item)
+	bool RecipeBrowserModule::setRecipesForItem(Item& item)
 	{
 		// Crafting recipes
 		ItemStack stack;
@@ -285,6 +271,7 @@ namespace TMI {
 		for (auto& [key, result] : furnaceRecipes) {
 			if (key.mTag.getString() == "furnace") {
 				auto id = key.mID >> 16;
+				if (result.mItem->mId != item.mId) continue;
 				auto aux = static_cast<std::uint16_t>(key.mID);
 
 				if (itemReg.mIdToItemMap.contains(id)) {
@@ -300,6 +287,8 @@ namespace TMI {
 			mCraftingRecipes = resultRecipes;
 			mFurnaceRecipes = resultFurnaceRecipes;
 			mRecipeWindowSelectedItemStack = stack;
+
+			mRecipeWindowCurrentTab = 0;
 			mRecipeWindowCurrentPage = 0;
 			mRecipeWindowMaxPage = std::max((int)(mCraftingRecipes.size() / 2.0) - 1, 0);
 			return true;
@@ -308,7 +297,7 @@ namespace TMI {
 		return false;
 	}
 
-	bool setRecipesFromItem(Item& item)
+	bool RecipeBrowserModule::setRecipesFromItem(Item& item)
 	{
 		ItemStack stack;
 		stack.reinit(item, 1, 0);
@@ -372,7 +361,7 @@ namespace TMI {
 		return false;
 	}
 
-	ItemStack getCraftingIngredient(int slot, int recipeIndex)
+	ItemStack RecipeBrowserModule::getCraftingIngredient(int slot, int recipeIndex)
 	{
 		auto& recipe = mCraftingRecipes.at(recipeIndex);
 		int x = 0;
@@ -416,26 +405,137 @@ namespace TMI {
 		const Item& item = *desc.mItem;
 		stack.reinit(item, 1, desc.mAuxValue);
 		return stack;
-
 	}
-	ItemStack getResult(int recipeIndex)
-	{
-		auto& recipe = mCraftingRecipes.at(recipeIndex);
-		auto& result = recipe->getResultItem().front();
 
-		ItemStack stack;
-		const Item& item = *result.getItem();
-		stack.reinit(item, result.mCount, result.mAuxValue);
-		return stack;
-	}
-	int recipeCount() {
+	int RecipeBrowserModule::recipeCount() {
 		return mCraftingRecipes.size();
 	}
-	int overlayItemCount() {
+	int RecipeBrowserModule::overlayItemCount() {
 		return queriedItems.size();
 	}
-	ItemStack& getOverlayItem(int index)
+	ItemStack& RecipeBrowserModule::getOverlayItem(int index)
 	{
 		return queriedItems.at(index);
+	}
+	void UIControlFactory__populateCustomRenderComponent(UIControlFactory* self, const UIResolvedDef& resolved, UIControl& control) {
+		std::string rendererType = resolved.getAsString("renderer");
+		
+		if (rendererType == "tmi_recipe_slot_renderer") {
+		control.setComponent<CustomRenderComponent>(
+		std::make_unique<CustomRenderComponent>(control)
+		);
+
+		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+		component->setRenderer(std::make_shared<RecipeSlotRenderer>());
+
+		return;
+		}
+		else if (rendererType == "tmi_overlay_slot_renderer") {
+		control.setComponent<CustomRenderComponent>(
+		std::make_unique<CustomRenderComponent>(control)
+		);
+
+		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+		component->setRenderer(std::make_shared<OverlaySlotRenderer>());
+
+		return;
+		}
+		else if (rendererType == "tmi_overlay_grid_sizer_renderer") {
+		control.setComponent<CustomRenderComponent>(
+		std::make_unique<CustomRenderComponent>(control)
+		);
+
+		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+		component->setRenderer(std::make_shared<OverlayGridSizerRenderer>());
+
+		return;
+		}
+		else if (rendererType == "tmi_tab_icon_renderer") {
+		control.setComponent<CustomRenderComponent>(
+		std::make_unique<CustomRenderComponent>(control)
+		);
+
+		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+		component->setRenderer(std::make_shared<TabIconRenderer>());
+
+		return;
+		}
+
+		_UIControlFactory__populateCustomRenderComponent.call<void, UIControlFactory*, const UIResolvedDef&, UIControl&>(self, resolved, control);
+	}
+	void CraftingScreenController__registerBindings(CraftingScreenController* self) {
+		self->bindString("#tmi_page_text", []() {
+			return std::format("{}/{}", recipeMod->mOverlayPage + 1, recipeMod->mOverlayMaxPage + 1);
+			},
+			[]() { return true; });
+
+		self->registerButtonInteractedHandler(StringToNameId("tmi_prev"), [&](UIPropertyBag* props) {
+			recipeMod->mOverlayPage--;
+			recipeMod->refreshOverlayPage();
+			return ui::ViewRequest::Refresh;
+			});
+		self->registerButtonInteractedHandler(StringToNameId("tmi_next"), [&](UIPropertyBag* props) {
+			recipeMod->mOverlayPage++;
+			recipeMod->refreshOverlayPage();
+			return ui::ViewRequest::Refresh;
+			});
+		//self->bindFloat("#tmi_visible_slot_count", [self]() {
+		//	//if (recipeMod->mOverlayPage == recipeMod->mOverlayMaxPage) {
+		//	//	return 3;// recipeMod->overlayItemCount() - (recipeMod->mOverlayMaxPage * recipeMod->overlayItemCount());
+		//	//}
+		//	//return recipeMod->mOverlayItemPerPage;
+		//	return 5;
+		//	},
+		//	[]() { return true; }
+		//);
+
+
+		self->registerButtonInteractedHandler(StringToNameId("tmi_overlay_slot_pressed"), [&](UIPropertyBag* mPropertyBag) {
+			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
+				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt() + (recipeMod->mOverlayPage * recipeMod->mOverlayItemPerPage);
+				if (id > -1 && id < recipeMod->overlayItemCount()) {
+					ItemStack stack = recipeMod->getOverlayItem(id);
+					if (recipeMod->setRecipesForItem(*stack.getItem())) {
+						recipeMod->showRecipesWindow();
+					}
+				}
+			}
+			return ui::ViewRequest::Refresh;
+			});
+
+		self->registerButtonInteractedHandler(StringToNameId("tmi_overlay_slot_pressed_secondary"), [&](UIPropertyBag* mPropertyBag) {
+			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
+				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt() + (recipeMod->mOverlayPage * recipeMod->mOverlayItemPerPage);
+				if (id > -1 && id < recipeMod->overlayItemCount()) {
+					ItemStack stack = recipeMod->getOverlayItem(id);
+					if (recipeMod->setRecipesFromItem(*stack.getItem())) {
+						recipeMod->showRecipesWindow();
+					}
+				}
+			}
+			return ui::ViewRequest::Refresh;
+			});
+
+		_CraftingScreenController__registerBindings.call<void, CraftingScreenController*>(self);
+	}
+	ui::ViewRequest CraftingScreenController_handleEvent(CraftingScreenController* self, ScreenEvent& event) {
+		if (event.type == ScreenEventType::TextEditChange) {
+			if (event.data.textEdit.properties != nullptr) {
+				if (StringToNameId("tmi_search_box") == event.data.textEdit.id) {
+					auto newText = event.data.textEdit.properties->mJsonValue.get(std::string("#item_name"), Json::Value("")).asString();
+					recipeMod->setSearchQuery(newText);
+					return ui::ViewRequest::ConsumeEvent;
+				}
+			}
+		}
+		return _CraftingScreenController_handleEvent.call<ui::ViewRequest, CraftingScreenController*, ScreenEvent&>(self, event);
+	}
+	void RegisterHooks(RecipeBrowserModule* mod)
+	{
+		Amethyst::HookManager& hooks = Amethyst::GetHookManager();
+		recipeMod = mod;
+		HOOK(UIControlFactory, _populateCustomRenderComponent);
+		HOOK(CraftingScreenController, _registerBindings);
+		VHOOK(CraftingScreenController, handleEvent, this);
 	}
 }

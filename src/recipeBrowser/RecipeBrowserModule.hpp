@@ -24,55 +24,106 @@
 #include <mc/src-client/common/client/gui/screens/SceneCreationUtils.hpp>
 #include <mc/src-client/common/client/gui/screens/models/ClientInstanceScreenModel.hpp>
 #include <mc/src-client/common/client/gui/screens/controllers/ContainerScreenController.hpp>
+#include <mc/src-client/common/client/gui/screens/controllers/CraftingScreenController.hpp>
 #include <mc/src/common/network/packet/InventoryContentPacket.hpp>
-#include "RecipeBrowserScreenController.hpp"
 #include <mc/src/common/world/item/ItemInstance.hpp>
 #include <mc/src/common/Minecraft.hpp>
+#include "customRenderers/RecipeSlotRenderer.hpp"
+#include "customRenderers/OverlaySlotRenderer.hpp"
+#include "customRenderers/OverlayGridSizerRenderer.hpp"
+#include "customRenderers/TabIconRenderer.hpp"
+#include <mc/src-client/common/client/gui/controls/UIControlFactory.hpp>
+#include <mc/src-client/common/client/gui/UIResolvedDef.hpp>
+#include <mc/src-client/common/client/gui/controls/UIPropertyBag.hpp>
+#include <mc/src-client/common/client/gui/controls/CustomRenderComponent.hpp>
+#include <mc/src-client/common/client/gui/screens/ScreenEvent.hpp>
 
 namespace TMI {
-    extern ItemStack mRecipeWindowSelectedItemStack;
-    extern ItemStack mHoveredStack;
-    extern int mRecipeWindowCurrentPage;
-    extern int mRecipeWindowMaxPage;
-    extern std::string searchQuery;
 
-    extern int mOverlayPage;
-    extern int mOverlayMaxPage;
-    extern int mOverlayItemPerPage;
+	const char BUTTON_LEFT = 0x263b;
+	const char BUTTON_RIGHT = 0x263a;
 
-    extern int mAnimCounter; // for cycling between multiple items
-    extern int mAnimCounterTime;
-    extern int mAnimIndex;
+	class RecipeBrowserScreenController;
+	class RecipeBrowserModule {
+	public:
+		static RecipeBrowserModule& getInstance() {
+			static RecipeBrowserModule instance;
+			return instance;
+		}
 
-    extern std::vector<std::shared_ptr<Recipe>> mCraftingRecipes;
-    extern std::vector<std::pair<ItemStack, ItemInstance>> mFurnaceRecipes;
+		ItemStack mRecipeWindowSelectedItemStack;
+		ItemStack mHoveredStack;
+		int mRecipeWindowCurrentPage = 0;
+		int mRecipeWindowMaxPage = 0;
+		int mRecipeWindowCurrentTab = 0;
 
-    void initRecipeBrowser();
+		int mOverlayPage = 0;
+		int mOverlayMaxPage = 0;
+		int mOverlayItemPerPage = 0;
 
-    void showRecipesWindow();
-    bool setRecipesForItem(Item& item);
-    bool setRecipesFromItem(Item& item);
-    ItemStack getCraftingIngredient(int slot, int recipeIndex);
-    ItemStack getResult(int recipeIndex);
-    int recipeCount();
-    int overlayItemCount();
-    ItemStack& getOverlayItem(int slotIndex);
+		std::vector<std::shared_ptr<Recipe>> mCraftingRecipes;
+		std::vector<std::pair<ItemStack, ItemInstance>> mFurnaceRecipes;
+		std::string searchQuery;
+		std::map<int, ItemStack> mRecipeTabIcons;
 
-    std::string getItemName(ItemStack& stack);
-    void drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx);
-    void OnAfterRenderUI(AfterRenderUIEvent event);
-    void OnBeforeRenderUI(BeforeRenderUIEvent event);
-    void setSearchQuery(std::string newQuery);
+		bool initialized = false;
 
-    static void refreshPage() {
-        if (TMI::mRecipeWindowCurrentPage < 0)
-            TMI::mRecipeWindowCurrentPage = TMI::mRecipeWindowMaxPage;
-        if (TMI::mRecipeWindowCurrentPage > TMI::mRecipeWindowMaxPage)
-            TMI::mRecipeWindowCurrentPage = 0;
+		std::map<std::string, ItemStack> itemMap;
+		std::vector<ItemStack> queriedItems;
 
-        if (TMI::mOverlayPage < 0)
-            TMI::mOverlayPage = TMI::mOverlayMaxPage;
-        if (TMI::mOverlayPage > TMI::mOverlayMaxPage)
-            TMI::mOverlayPage = 0;
-    }
+		int mAnimCounter = 0;
+		int mAnimCounterTime = 90;
+		int mAnimIndex = 0;
+
+		int itemCount = 0;
+		int mposX = 0;
+		int mposY = 0;
+		boolean isMousePressed = false;
+		boolean isMouseJustReleased = false;
+
+		std::shared_ptr<RecipeBrowserScreenController> controller;
+
+		char last_button = 'a';
+
+		void initRecipeBrowser();
+
+		void showRecipesWindow();
+		bool setRecipesForItem(Item& item);
+		bool setRecipesFromItem(Item& item);
+		ItemStack getCraftingIngredient(int slot, int recipeIndex);
+		int recipeCount();
+		int overlayItemCount();
+		ItemStack& getOverlayItem(int slotIndex);
+
+		std::string getModNameFromNamespace(std::string mNamespace);
+		std::string getItemName(ItemStack& stack);
+		void drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx);
+		void OnAfterRenderUI(AfterRenderUIEvent event);
+		void OnBeforeRenderUI(BeforeRenderUIEvent event);
+		void OnMouseInput(MouseInputEvent event);
+		void setSearchQuery(std::string newQuery);
+
+		void refreshOverlayPage();
+
+	private:
+		// Private constructor to prevent direct instantiation
+		RecipeBrowserModule() { }
+
+		// Delete copy constructor and assignment operator
+		RecipeBrowserModule(const RecipeBrowserModule&) = delete;
+		RecipeBrowserModule& operator=(const RecipeBrowserModule&) = delete;
+
+		// Optionally delete move constructor and assignment operator
+		RecipeBrowserModule(RecipeBrowserModule&&) = delete;
+		RecipeBrowserModule& operator=(RecipeBrowserModule&&) = delete;
+	};
+
+	void UIControlFactory__populateCustomRenderComponent(UIControlFactory* self, const UIResolvedDef& resolved, UIControl& control);
+
+	void CraftingScreenController__registerBindings(CraftingScreenController* self);
+
+	ui::ViewRequest CraftingScreenController_handleEvent(CraftingScreenController* self, ScreenEvent& event);
+
+
+	void RegisterHooks(RecipeBrowserModule* mod);
 }

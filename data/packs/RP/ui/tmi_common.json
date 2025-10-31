@@ -358,6 +358,7 @@
                         18,
                         18
                     ],
+                    "offset" : [0, -1],
                     "layer": 10,
                     "property_bag": {
                         "#tab_index": "$tab_index"

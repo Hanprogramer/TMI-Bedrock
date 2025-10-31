@@ -3,7 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/src/**",
                 "${AMETHYST_SRC}/AmethystAPI/src",
                 "${AMETHYST_SRC}/AmethystAPI/include"
             ],
