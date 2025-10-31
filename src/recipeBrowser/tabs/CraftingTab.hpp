@@ -1,5 +1,6 @@
 #pragma once
 #include "TMITab.hpp"
+#include "recipeBrowser/RecipeBrowserModule.hpp"
 namespace TMI
 {
     class CraftingTab : public TMITab

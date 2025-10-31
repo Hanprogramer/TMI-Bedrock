@@ -26,9 +26,9 @@
 #include <mc/src-client/common/client/gui/screens/controllers/ContainerScreenController.hpp>
 #include <mc/src-client/common/client/gui/screens/controllers/CraftingScreenController.hpp>
 #include <mc/src/common/network/packet/InventoryContentPacket.hpp>
-#include "RecipeBrowserScreenController.hpp"
 #include <mc/src/common/world/item/ItemInstance.hpp>
 #include <mc/src/common/Minecraft.hpp>
+#include "RecipeBrowserScreenController.hpp"
 
 namespace TMI {
 

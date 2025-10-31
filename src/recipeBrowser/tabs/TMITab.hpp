@@ -1,6 +1,6 @@
 #pragma once
 #include <mc/src/common/world/item/ItemStack.hpp>
-#include "recipeBrowser/RecipeBrowserScreenController.hpp"
+#include "recipeBrowser/RecipeBrowserModule.hpp"
 
 namespace TMI
 {
