@@ -85,7 +85,8 @@
                     "property_bag": {
                         "#tmi_recipe_index": "$tmi_recipe_index",
                         "#tmi_slot_id": "$tmi_slot_id",
-                        "#tmi_is_result_slot": "$tmi_is_result_slot"
+                        "#tmi_is_result_slot": "$tmi_is_result_slot",
+                        "#tmi_recipe_type": "$tmi_recipe_type"
                     },
                     "bindings": [
                         {
@@ -111,7 +112,9 @@
         "layer": 2,
         "controls": [
             {
-                "default": {}
+                "default": {
+                    "type": "panel"
+                }
             },
             {
                 "hover": {
@@ -120,7 +123,9 @@
                 }
             },
             {
-                "pressed": {}
+                "pressed": {
+                    "type": "panel"
+                }
             }
         ]
     },
@@ -217,7 +222,7 @@
             // },
             // {
             //     "binding_type": "view", // make this a viewing binding
-            //     "source_property_name": "(#collection_index < 10)", // detect when the title text string is not equal to "hello world"
+            //     "source_property_name": "(#collection_index < #tmi_visible_slot_count)", // detect when the title text string is not equal to "hello world"
             //     "target_property_name": "#visible" // override the #visibility property depending on if "source_property_name" is true or false
             // }
         ]
@@ -230,6 +235,14 @@
     },
     "tmi_tab_bg@common.button": {
         "layer": 2,
+        "size": [
+            28,
+            28
+        ],
+        "property_bag": {
+            "#tab_index": "$tab_index"
+        },
+        "$pressed_button_name": "tmi_tab_pressed",
         "controls": [
             {
                 "default": {
@@ -249,14 +262,92 @@
                     "texture": "textures/ui/TabTopFront"
                 }
             }
+        ],
+        // "visible": "($tab_index = #tmi_current_tab)",
+        "bindings": [
+            {
+                "binding_type": "view",
+                "source_property_name": "(#tab_index = #tmi_current_tab)",
+                "target_property_name": "#visible"
+            },
+            {
+                "binding_name": "#tmi_current_tab"
+            }
+        ],
+        "button_mappings": [
+            // Trigger this button if it's right clicked
+            {
+                "from_button_id": "button.menu_secondary_select",
+                "to_button_id": "tmi_tab_pressed",
+                "mapping_type": "pressed"
+            },
+            {
+                "from_button_id": "button.menu_select",
+                "to_button_id": "tmi_tab_pressed",
+                "mapping_type": "pressed"
+            }
+        ]
+    },
+    "tmi_tab_bg_inactive@common.button": {
+        "layer": 1,
+        "size": [
+            28,
+            28
+        ],
+        "property_bag": {
+            "#tab_index": "$tab_index"
+        },
+        "$pressed_button_name": "tmi_tab_pressed",
+        "controls": [
+            {
+                "default": {
+                    "type": "image",
+                    "texture": "textures/ui/TabTopBack"
+                }
+            },
+            {
+                "hover": {
+                    "type": "image",
+                    "texture": "textures/ui/TabTopBackHover"
+                }
+            },
+            {
+                "pressed": {
+                    "type": "image",
+                    "texture": "textures/ui/TabTopBack"
+                }
+            }
+        ],
+        "button_mappings": [
+            // Trigger this button if it's right clicked
+            {
+                "from_button_id": "button.menu_secondary_select",
+                "to_button_id": "tmi_tab_pressed",
+                "mapping_type": "pressed"
+            },
+            {
+                "from_button_id": "button.menu_select",
+                "to_button_id": "tmi_tab_pressed",
+                "mapping_type": "pressed"
+            }
         ]
     },
     "tmi_tab": {
         "type": "panel",
+        "size": [
+            32,
+            32
+        ],
+        "$tab_index|default": -1,
         "controls": [
             {
                 "bg@tmi_common.tmi_tab_bg": {
                     "layer": 2
+                }
+            },
+            {
+                "bg@tmi_common.tmi_tab_bg_inactive": {
+                    "layer": 1
                 }
             },
             {
@@ -267,9 +358,9 @@
                         18,
                         18
                     ],
-                    "layer": 3,
+                    "layer": 10,
                     "property_bag": {
-                        "#tmi_item_id": "minecraft:dirt"
+                        "#tab_index": "$tab_index"
                     }
                 }
             }

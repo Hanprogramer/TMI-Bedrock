@@ -1,0 +1,22 @@
+#pragma once
+#include <mc/src/common/world/item/ItemStack.hpp>
+#include "recipeBrowser/RecipeBrowserScreenController.hpp"
+
+namespace TMI
+{
+    class TMITab
+    {
+    public:
+        virtual void init() = 0;
+        virtual std::string getTitle() = 0;
+        virtual std::string getID() = 0;
+        virtual ItemStack getIcon() = 0;
+
+        virtual int getMaxItemPerPage() = 0;
+        virtual int getMaxPage() = 0;
+        virtual int getItemCount() = 0;
+
+        virtual ItemStack getResult(int recipeIndex) = 0;
+        virtual std::vector<ItemStack> getIngredient(int slot, int recipeIndex) = 0;
+    };
+}

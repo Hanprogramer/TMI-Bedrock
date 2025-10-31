@@ -1,5 +1,4 @@
 #pragma once
-#include "RecipeBrowserModule.hpp"
 #include <mc/src-client/common/client/gui/screens/ScreenController.hpp>
 #include <mc/src-client/common/client/gui/screens/UIScene.hpp>
 #include <mc/src-client/common/client/gui/screens/controllers/ContainerScreenController.hpp>
@@ -29,17 +28,35 @@
 #include <mc/src-client/common/client/gui/controls/CustomRenderComponent.hpp>
 #include <mc/src-client/common/client/gui/controls/UIPropertyBag.hpp>
 #include <mc/src-client/common/client/gui/screens/ScreenEvent.hpp>
+#include "recipeBrowser/RecipeBrowserModule.hpp"
+#include "customRenderers/RecipeSlotRenderer.hpp"
+#include "customRenderers/OverlaySlotRenderer.hpp"
+#include "customRenderers/OverlayGridSizerRenderer.hpp"
+#include "customRenderers/TabIconRenderer.hpp"
+#include "tabs/TMITab.hpp"
+#include "tabs/CraftingTab.hpp"
+#include "tabs/FurnaceTab.hpp"
 
 namespace TMI
 {
+
 	class RecipeBrowserScreenController : public ClientInstanceScreenController {
 	public:
 		ItemStack& mItemStack;
+		int currentTabIndex = 0;
 		int currentPage = 0;
 		int maxPage = 0;
-		RecipeBrowserScreenController(std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, ItemStack& itemStack);
-		void _registerBindings();
-	};
 
-	void RegisterHooks();
+		std::string currentRecipeType = "";
+		std::vector<TMITab> tabs;
+		TMITab* currentTab;
+
+		RecipeBrowserModule* mModule;
+
+
+		RecipeBrowserScreenController(RecipeBrowserModule* module, std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, ItemStack& itemStack);
+		void _registerBindings();
+
+		void refreshPage();
+	};
 }

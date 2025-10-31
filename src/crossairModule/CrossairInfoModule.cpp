@@ -1,4 +1,4 @@
-#include "CrossairInfoModule.h"
+#include "CrossairInfoModule.hpp"
 #include <amethyst/runtime/ModContext.hpp>
 #include <mc/src-client/common/client/renderer/BaseActorRenderContext.hpp>
 
