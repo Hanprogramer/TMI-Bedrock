@@ -24,11 +24,11 @@
 #include <mc/src-client/common/client/gui/screens/SceneCreationUtils.hpp>
 #include <mc/src-client/common/client/gui/screens/models/ClientInstanceScreenModel.hpp>
 #include <mc/src-client/common/client/gui/screens/controllers/ContainerScreenController.hpp>
+#include <mc/src-client/common/client/gui/screens/controllers/CraftingScreenController.hpp>
 #include <mc/src/common/network/packet/InventoryContentPacket.hpp>
 #include "RecipeBrowserScreenController.hpp"
 #include <mc/src/common/world/item/ItemInstance.hpp>
 #include <mc/src/common/Minecraft.hpp>
-#include "RecipeBrowserHooks.hpp"
 
 namespace TMI {
 
