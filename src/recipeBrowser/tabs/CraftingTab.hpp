@@ -12,21 +12,14 @@ namespace TMI
         CraftingTab(RecipeBrowserModule* recipeMod);
         ~CraftingTab();
 
-        void init();
+        std::string getTitle() override;
+        std::string getID() override;
+        ItemStack getIcon() override;
 
-        std::string getTitle();
-        std::string getID();
+        int getItemPerPage() override;
+        int getItemCount() override;
 
-        ItemStack getIcon();
-
-        int getMaxItemPerPage();
-
-        int getMaxPage();
-
-        int getItemCount();
-
-        ItemStack getResult(int recipeIndex);
-
-        std::vector<ItemStack> getIngredient(int slot, int recipeIndex);
+        ItemStack getResult(int recipeIndex) override;
+        std::vector<ItemStack> getIngredient(int slot, int recipeIndex) override;
     };
 }

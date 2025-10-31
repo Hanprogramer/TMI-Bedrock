@@ -16,9 +16,9 @@ void TMI::TabIconRenderer::render(MinecraftUIRenderContext& ctx, IClientInstance
     if (owner.mPropertyBag != nullptr && !owner.mPropertyBag->mJsonValue.isNull() && owner.mPropertyBag->mJsonValue.isObject())
     {
         auto id = owner.mPropertyBag->mJsonValue.get("#tab_index", Json::Value(-1)).asInt();
-        if (id > -1)
+        auto& controller = RecipeBrowserModule::getInstance();
+        if (id > -1 && id < controller.controller->tabs.size())
         {
-			auto& controller = RecipeBrowserModule::getInstance();
             ItemStack stack = controller.controller->tabs[id]->getIcon();
             if (stack.isNull() || stack == ItemStack::EMPTY_ITEM)
                 return;

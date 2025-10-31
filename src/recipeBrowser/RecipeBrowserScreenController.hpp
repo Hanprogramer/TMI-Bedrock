@@ -49,7 +49,7 @@ namespace TMI
 
 		RecipeBrowserScreenController(RecipeBrowserModule* module, std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, ItemStack& itemStack);
 		void _registerBindings();
-
+		void init();
 		void refreshPage();
 	};
 }

@@ -14,17 +14,33 @@ namespace TMI {
 		auto& player = *model->getPlayer();
 
 		tabs = std::vector<TMITab*>();
-
-		// Add the tabs
-		craftingTab = new CraftingTab(module);
-		furnaceTab = new FurnaceTab(module);
-		tabs.push_back(craftingTab);
-		tabs.push_back(furnaceTab);
-
-		currentTab = craftingTab;
-		currentTabIndex = 0;
+		craftingTab = new CraftingTab(mModule);
+		furnaceTab = new FurnaceTab(mModule);
+		init();
 
 		_registerBindings();
+	}
+
+	void RecipeBrowserScreenController::init() {
+		// Add the tabs
+		tabs.clear();
+
+		if (mModule->mCraftingRecipes.size() > 0)
+			tabs.push_back(craftingTab);
+
+		if (mModule->mFurnaceRecipes.size() > 0)
+			tabs.push_back(furnaceTab);
+
+		if (tabs.size() == 0) {
+			this->tryExit();
+			return;
+		}
+
+		currentTab = tabs[0];
+		currentTabIndex = 0;
+
+		currentPage = 0;
+		maxPage = currentTab->getMaxPage();
 	}
 
 	void RecipeBrowserScreenController::_registerBindings()
@@ -56,24 +72,27 @@ namespace TMI {
 			},
 			[]() { return true; }
 		);
+		bindFloat("#tmi_tab_count", [this]() {
+			return tabs.size();
+			},
+			[]() { return true; }
+		);
 
 		bindString("#tmi_current_recipe_type", [this]() {
-			if (currentTabIndex == 0) {
-				return "crafting_recipe";
-			}
-			else if (currentTabIndex == 1) {
-				return "furnace_recipe";
-			}
+			return currentTab->getID();
 			},
 			[]() { return true; }
 		);
 
 		// Recipe count per page
 		bindFloat("#tmi_recipe_count", [&]() {
-			if (currentPage == maxPage || maxPage == 0) {
-				return currentTab->getItemCount() - (2.0f * maxPage);
+			if (currentPage < 0 || currentPage > maxPage) {
+				return 0.0f;
 			}
-			return 2.0f;
+			int startItem = currentPage * currentTab->getItemPerPage();
+			int remainingItems = currentTab->getItemCount() - startItem;
+
+			return  std::fminf(currentTab->getItemPerPage(), remainingItems);
 			}, []() { return true; });
 
 		this->registerButtonInteractedHandler(StringToNameId("tmi_close_modal"), [this](UIPropertyBag* props) {
@@ -88,7 +107,7 @@ namespace TMI {
 		this->registerButtonInteractedHandler(StringToNameId("tmi_slot_pressed"), [this](UIPropertyBag* mPropertyBag) {
 			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
 				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt();
-				auto recipe_index = mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt() + (currentPage * 2) - 1;
+				auto recipe_index = mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt() + (currentPage * currentTab->getItemPerPage());
 				auto isResultSlot = mPropertyBag->mJsonValue.get("#tmi_is_result_slot", Json::Value(false)).asBool();
 
 				if (id > -1 && recipe_index > -1 && recipe_index < currentTab->getItemCount()) {
@@ -97,10 +116,14 @@ namespace TMI {
 						stack = currentTab->getResult(recipe_index);
 					}
 					else {
-						stack = currentTab->getIngredient(id, recipe_index).front(); //TODO: Handle if no ingredient
+						auto stacks = currentTab->getIngredient(id, recipe_index);
+						if (stacks.size() > 0)
+							stack = stacks.front(); //TODO: Handle if no ingredient
 					}
-
-					mModule->setRecipesForItem(*stack.getItem());
+					if (stack.isNull()) return ui::ViewRequest::Refresh;
+					if (mModule->setRecipesForItem(*stack.getItem())) {
+						init();
+					}
 				}
 			}
 			return ui::ViewRequest::Refresh;
@@ -109,7 +132,7 @@ namespace TMI {
 		this->registerButtonInteractedHandler(StringToNameId("tmi_slot_pressed_secondary"), [this](UIPropertyBag* mPropertyBag) {
 			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
 				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt();
-				auto recipe_index = mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt() + (currentPage * 2) - 1;
+				auto recipe_index = mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt() + (currentPage * currentTab->getItemPerPage());
 				auto isResultSlot = mPropertyBag->mJsonValue.get("#tmi_is_result_slot", Json::Value(false)).asBool();
 
 				if (id > -1 && recipe_index > -1 && recipe_index < currentTab->getItemCount()) {
@@ -118,10 +141,15 @@ namespace TMI {
 						stack = currentTab->getResult(recipe_index);
 					}
 					else {
-						stack = currentTab->getIngredient(id, recipe_index).front(); //TODO: Handle if no ingredient
+						auto stacks = currentTab->getIngredient(id, recipe_index);
+						if (stacks.size() > 0)
+							stack = stacks.front(); //TODO: Handle if no ingredient
 					}
 
-					mModule->setRecipesFromItem(*stack.getItem());
+					if (stack.isNull()) return ui::ViewRequest::Refresh;
+					if (mModule->setRecipesFromItem(*stack.getItem())) {
+						init();
+					}
 				}
 			}
 			return ui::ViewRequest::Refresh;

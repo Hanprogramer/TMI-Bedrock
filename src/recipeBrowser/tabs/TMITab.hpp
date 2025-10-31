@@ -7,13 +7,19 @@ namespace TMI
     class TMITab
     {
     public:
-        virtual void init() = 0;
         virtual std::string getTitle() = 0;
         virtual std::string getID() = 0;
         virtual ItemStack getIcon() = 0;
 
-        virtual int getMaxItemPerPage() = 0;
-        virtual int getMaxPage() = 0;
+        virtual int getItemPerPage() = 0;
+
+        int getMaxPage()
+        {
+            if (getItemCount() == 0)
+                return 0;
+            return ((getItemCount() + getItemPerPage() - 1) / getItemPerPage()) - 1;
+        }
+
         virtual int getItemCount() = 0;
 
         virtual ItemStack getResult(int recipeIndex) = 0;

@@ -263,7 +263,6 @@
                 }
             }
         ],
-        // "visible": "($tab_index = #tmi_current_tab)",
         "bindings": [
             {
                 "binding_type": "view",
@@ -335,10 +334,13 @@
     "tmi_tab": {
         "type": "panel",
         "size": [
-            32,
+            28,
             32
         ],
         "$tab_index|default": -1,
+        "property_bag": {
+            "#tab_index": "$tab_index"
+        },
         "controls": [
             {
                 "bg@tmi_common.tmi_tab_bg": {
@@ -358,12 +360,25 @@
                         18,
                         18
                     ],
-                    "offset" : [0, -1],
+                    "offset": [
+                        0,
+                        -1
+                    ],
                     "layer": 10,
                     "property_bag": {
                         "#tab_index": "$tab_index"
                     }
                 }
+            }
+        ],
+        "bindings": [
+            {
+                "binding_type": "view",
+                "source_property_name": "(#tab_index < #tmi_tab_count)",
+                "target_property_name": "#visible"
+            },
+            {
+                "binding_name": "#tmi_tab_count"
             }
         ]
     }

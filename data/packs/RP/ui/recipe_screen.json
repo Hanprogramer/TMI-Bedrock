@@ -107,7 +107,7 @@
                         32
                     ],
                     "offset": [
-                        62,
+                        64,
                         -24
                     ],
                     "anchor_from": "top_left",
@@ -121,6 +121,26 @@
                         {
                             "furnace_recipe@tmi_common.tmi_tab": {
                                 "$tab_index": 1
+                            }
+                        },
+                        {
+                            "furnace_recipe@tmi_common.tmi_tab": {
+                                "$tab_index": 2
+                            }
+                        },
+                        {
+                            "furnace_recipe@tmi_common.tmi_tab": {
+                                "$tab_index": 3
+                            }
+                        },
+                        {
+                            "furnace_recipe@tmi_common.tmi_tab": {
+                                "$tab_index": 4
+                            }
+                        },
+                        {
+                            "furnace_recipe@tmi_common.tmi_tab": {
+                                "$tab_index": 5
                             }
                         }
                     ]
@@ -234,7 +254,7 @@
                                                         "controls": [
                                                             {
                                                                 "input_grid@tmi.input_grid": {
-                                                                    "$tmi_recipe_index": 1
+                                                                    "$tmi_recipe_index": 0
                                                                 }
                                                             }
                                                         ]
@@ -285,7 +305,7 @@
                                                                     ],
                                                                     "anchor_from": "center",
                                                                     "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 1,
+                                                                    "$tmi_recipe_index": 0,
                                                                     "$tmi_slot_id": 9,
                                                                     "$tmi_is_result_slot": true
                                                                 }
@@ -350,7 +370,7 @@
                                                         "controls": [
                                                             {
                                                                 "input_grid@tmi.input_grid": {
-                                                                    "$tmi_recipe_index": 2
+                                                                    "$tmi_recipe_index": 1
                                                                 }
                                                             }
                                                         ]
@@ -401,7 +421,7 @@
                                                                     ],
                                                                     "anchor_from": "center",
                                                                     "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 2,
+                                                                    "$tmi_recipe_index": 1,
                                                                     "$tmi_slot_id": 9,
                                                                     "$tmi_is_result_slot": true
                                                                 }
@@ -472,7 +492,7 @@
                                                                     ],
                                                                     "anchor_from": "center",
                                                                     "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 1,
+                                                                    "$tmi_recipe_index": 0,
                                                                     "$tmi_slot_id": 0,
                                                                     "$tmi_is_result_slot": false
                                                                 }
@@ -525,7 +545,7 @@
                                                                     ],
                                                                     "anchor_from": "center",
                                                                     "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 1,
+                                                                    "$tmi_recipe_index": 0,
                                                                     "$tmi_slot_id": 9,
                                                                     "$tmi_is_result_slot": true
                                                                 }
@@ -596,7 +616,7 @@
                                                                     ],
                                                                     "anchor_from": "center",
                                                                     "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 2,
+                                                                    "$tmi_recipe_index": 1,
                                                                     "$tmi_slot_id": 0,
                                                                     "$tmi_is_result_slot": false
                                                                 }
@@ -649,7 +669,7 @@
                                                                     ],
                                                                     "anchor_from": "center",
                                                                     "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 2,
+                                                                    "$tmi_recipe_index": 1,
                                                                     "$tmi_slot_id": 9,
                                                                     "$tmi_is_result_slot": true
                                                                 }
@@ -687,8 +707,10 @@
     "recipe_panel": {
         "type": "panel",
         "$tmi_recipe_type": "unknown",
+        "$tmi_recipe_index": 0,
         "property_bag": {
-            "#tmi_recipe_type": "$tmi_recipe_type"
+            "#tmi_recipe_type": "$tmi_recipe_type",
+            "#tmi_recipe_index": "$tmi_recipe_index"
         },
         "bindings": [
             {

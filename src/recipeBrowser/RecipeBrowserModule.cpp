@@ -351,8 +351,29 @@ namespace TMI {
 		finish: {}
 		}
 
-		if (resultRecipes.size() > 0) {
+		// Furnace recipes
+		auto& furnaceRecipes = lrecipes.mFurnaceRecipes;
+		auto& itemReg = *Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getItemRegistry()._lockRegistry();
+		std::vector<std::pair<ItemStack, ItemInstance>> resultFurnaceRecipes;
+		int size = furnaceRecipes.size();
+		for (auto& [key, result] : furnaceRecipes) {
+			if (key.mTag.getString() == "furnace") {
+				auto id = key.mID >> 16;
+				if (id != item.mId) continue;
+				auto aux = static_cast<std::uint16_t>(key.mID);
+
+				if (itemReg.mIdToItemMap.contains(id)) {
+					auto& item = *itemReg.mIdToItemMap[id];
+					ItemStack stack;
+					stack.reinit(item, 1, aux);
+					resultFurnaceRecipes.push_back(std::make_pair(stack, result));
+				}
+			}
+		}
+
+		if (resultRecipes.size() > 0 || resultFurnaceRecipes.size() > 0) {
 			mCraftingRecipes = resultRecipes;
+			mFurnaceRecipes = resultFurnaceRecipes;
 			mRecipeWindowCurrentPage = 0;
 			mRecipeWindowMaxPage = std::max((int)(mCraftingRecipes.size() / 2.0) - 1, 0);
 			return true;

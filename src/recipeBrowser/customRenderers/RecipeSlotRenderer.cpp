@@ -15,10 +15,10 @@ void TMI::RecipeSlotRenderer::render(MinecraftUIRenderContext& ctx, IClientInsta
 	{
 		auto& controller = RecipeBrowserModule::getInstance();
 		auto id = owner.mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt();
-		auto recipe_index = owner.mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt() + (controller.controller->currentPage * 2) - 1;
+		auto recipe_index = owner.mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt() + (controller.controller->currentPage * controller.controller->currentTab->getItemPerPage());
 		auto isResultSlot = owner.mPropertyBag->mJsonValue.get("#tmi_is_result_slot", Json::Value(false)).asBool();
 		auto recipeType = owner.mPropertyBag->mJsonValue.get("#tmi_recipe_type", Json::Value("_unknown")).asString();
-		if (id > -1 && recipe_index > -1)
+		if (id > -1 && recipe_index > -1 && recipe_index < controller.controller->currentTab->getItemCount())
 		{
 			ItemStack stack;
 			if (isResultSlot)
@@ -28,8 +28,9 @@ void TMI::RecipeSlotRenderer::render(MinecraftUIRenderContext& ctx, IClientInsta
 			else
 			{
 				auto stacks = controller.controller->currentTab->getIngredient(id, recipe_index);
-				if(stacks.size() > 0)
+				if (stacks.size() > 0) {
 					stack = stacks.front(); //TODO: Handle if no ingredient or multiple
+				}
 			}
 
 			if (stack.isNull() || stack == ItemStack::EMPTY_ITEM)
