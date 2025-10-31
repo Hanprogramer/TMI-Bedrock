@@ -1,8 +1,8 @@
 #include "RecipeBrowserScreenController.hpp"
 #include <mc/src-client/common/client/gui/screens/controllers/CraftingScreenController.hpp>
-#include "customRenderers/RecipeSlotRenderer.h"
-#include "customRenderers/OverlaySlotRenderer.h"
-#include "customRenderers/OverlayGridSizerRenderer.h"
+#include "customRenderers/RecipeSlotRenderer.hpp"
+#include "customRenderers/OverlaySlotRenderer.hpp"
+#include "customRenderers/OverlayGridSizerRenderer.hpp"
 
 namespace TMI {
 	
