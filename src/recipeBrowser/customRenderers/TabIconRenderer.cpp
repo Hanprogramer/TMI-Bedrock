@@ -19,7 +19,7 @@ void TMI::TabIconRenderer::render(MinecraftUIRenderContext& ctx, IClientInstance
         if (id > -1)
         {
 			auto& controller = RecipeBrowserModule::getInstance();
-            ItemStack stack = controller.controller->currentTab->getIcon();
+            ItemStack stack = controller.controller->tabs[id]->getIcon();
             if (stack.isNull() || stack == ItemStack::EMPTY_ITEM)
                 return;
 

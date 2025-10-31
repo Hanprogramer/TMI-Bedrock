@@ -13,7 +13,7 @@ namespace TMI
 
 		FurnaceTab(RecipeBrowserModule* recipeMod): mRecipe(recipeMod)
 		{
-			mIcon.reinit("minercaft:furnace", 1, 0);
+			mIcon.reinit("minecraft:furnace", 1, 0);
 		}
 		~FurnaceTab()
 		{
@@ -21,7 +21,6 @@ namespace TMI
 
 		void init()
 		{
-
 		}
 
 		std::string getTitle()

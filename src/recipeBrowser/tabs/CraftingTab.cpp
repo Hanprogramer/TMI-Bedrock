@@ -2,49 +2,49 @@
 
 TMI::CraftingTab::CraftingTab(RecipeBrowserModule* recipeMod) : recipeMod(recipeMod)
 {
-    mIcon.reinit("minercaft:crafting_table", 1, 0);
+    mIcon.reinit("minecraft:crafting_table", 1, 0);
 }
 
 TMI::CraftingTab::~CraftingTab()
 {
 }
 
-inline void TMI::CraftingTab::init()
+void TMI::CraftingTab::init()
 {
 
 }
 
-inline std::string TMI::CraftingTab::getTitle()
+std::string TMI::CraftingTab::getTitle()
 {
     return "Crafting Recipes";
 }
 
-inline std::string TMI::CraftingTab::getID()
+std::string TMI::CraftingTab::getID()
 {
     return "crafting_recipe";
 }
 
-inline ItemStack TMI::CraftingTab::getIcon() {
+ItemStack TMI::CraftingTab::getIcon() {
     return mIcon;
 }
 
-inline int TMI::CraftingTab::getMaxItemPerPage()
+int TMI::CraftingTab::getMaxItemPerPage()
 {
     return 2;
 }
 
-inline int TMI::CraftingTab::getMaxPage()
+int TMI::CraftingTab::getMaxPage()
 {
     if (recipeMod->mCraftingRecipes.size() == 0)
         return 0;
     return (recipeMod->mCraftingRecipes.size() / 2) - 1;
 }
 
-inline int TMI::CraftingTab::getItemCount() {
+int TMI::CraftingTab::getItemCount() {
     return recipeMod->mCraftingRecipes.size();
 }
 
-inline ItemStack TMI::CraftingTab::getResult(int recipeIndex)
+ItemStack TMI::CraftingTab::getResult(int recipeIndex)
 {
     auto& recipe = recipeMod->mCraftingRecipes.at(recipeIndex);
     auto& result = recipe->getResultItem().front();
@@ -55,7 +55,7 @@ inline ItemStack TMI::CraftingTab::getResult(int recipeIndex)
     return stack;
 }
 
-inline std::vector<ItemStack> TMI::CraftingTab::getIngredient(int slot, int recipeIndex)
+std::vector<ItemStack> TMI::CraftingTab::getIngredient(int slot, int recipeIndex)
 {
     auto& recipe = recipeMod->mCraftingRecipes.at(recipeIndex);
     int x = 0;

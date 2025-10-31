@@ -4,6 +4,9 @@
 #include "tabs/FurnaceTab.hpp"
 
 namespace TMI {
+	CraftingTab* craftingTab;
+	FurnaceTab* furnaceTab;
+
 	RecipeBrowserScreenController::RecipeBrowserScreenController(RecipeBrowserModule* module, std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, ItemStack& itemStack) : ClientInstanceScreenController(model),
 		mItemStack(itemStack), mModule(module)
 	{
@@ -13,13 +16,12 @@ namespace TMI {
 		tabs = std::vector<TMITab*>();
 
 		// Add the tabs
-		CraftingTab craftingTab = CraftingTab(module);
-		tabs.push_back(&craftingTab);
+		craftingTab = new CraftingTab(module);
+		furnaceTab = new FurnaceTab(module);
+		tabs.push_back(craftingTab);
+		tabs.push_back(furnaceTab);
 
-		FurnaceTab furnaceTab = FurnaceTab(module);
-		tabs.push_back(&furnaceTab);
-
-		currentTab = &craftingTab;
+		currentTab = craftingTab;
 		currentTabIndex = 0;
 
 		_registerBindings();
@@ -27,9 +29,9 @@ namespace TMI {
 
 	void RecipeBrowserScreenController::_registerBindings()
 	{
-		//bindString("#title_text", [this]() {
-		//	return currentTab->getTitle();
-		//	}, []() { return true; });
+		bindString("#title_text", [this]() {
+			return currentTab->getTitle();
+			}, []() { return true; });
 
 		bindString("#page_text", [this]() {
 			return std::format("{}/{}", currentPage + 1, maxPage + 1);
@@ -67,10 +69,8 @@ namespace TMI {
 		);
 
 		// Recipe count per page
-		bindFloat("#tmi_recipe_count", [this]() {
+		bindFloat("#tmi_recipe_count", [&]() {
 			if (currentPage == maxPage || maxPage == 0) {
-				int a = 2;
-				a = 3;
 				return currentTab->getItemCount() - (2.0f * maxPage);
 			}
 			return 2.0f;
@@ -129,7 +129,7 @@ namespace TMI {
 		this->registerButtonInteractedHandler(StringToNameId("tmi_tab_pressed"), [this](UIPropertyBag* mPropertyBag) {
 			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
 				auto id = mPropertyBag->mJsonValue.get("#tab_index", Json::Value(-1)).asInt();
-				if (id > -1 && id < tabs.size() - 1) {
+				if (id > -1 && id < tabs.size()) {
 					currentTabIndex = id;
 					currentPage = 0;
 					currentTab = tabs[id];

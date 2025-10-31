@@ -27,7 +27,9 @@ void TMI::RecipeSlotRenderer::render(MinecraftUIRenderContext& ctx, IClientInsta
 			}
 			else
 			{
-				stack = controller.controller->currentTab->getIngredient(id, recipe_index).front(); // TODO Handle if zero or multiple
+				auto stacks = controller.controller->currentTab->getIngredient(id, recipe_index);
+				if(stacks.size() > 0)
+					stack = stacks.front(); //TODO: Handle if no ingredient or multiple
 			}
 
 			if (stack.isNull() || stack == ItemStack::EMPTY_ITEM)

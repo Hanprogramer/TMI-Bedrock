@@ -238,7 +238,7 @@ namespace TMI {
 		auto interactionModel = ContainerScreenController::interactionModelFromUIProfile(model->getUIProfile());
 		auto& item = *stack.getItem();
 		auto controller = std::make_shared<RecipeBrowserScreenController>(this, model, interactionModel, mRecipeWindowSelectedItemStack);
-		//this->controller = controller;
+		this->controller = controller;
 		auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
 		auto screen = factory._createScreen(scene);
 		factory.getCurrentSceneStack()->pushScreen(screen, false);
@@ -465,7 +465,7 @@ namespace TMI {
 	}
 	void CraftingScreenController__registerBindings(CraftingScreenController* self) {
 		self->bindString("#tmi_page_text", []() {
-			return std::string("{}/{}", recipeMod->mOverlayPage + 1, recipeMod->mOverlayMaxPage + 1);
+			return std::format("{}/{}", recipeMod->mOverlayPage + 1, recipeMod->mOverlayMaxPage + 1);
 			},
 			[]() { return true; });
 
