@@ -1,6 +1,8 @@
 #include "TabIconRenderer.hpp"
+#include "recipeBrowser/RecipeBrowserScreenController.hpp"
+#include "recipeBrowser/RecipeBrowserModule.hpp"
 
-TMI::TabIconRenderer::TabIconRenderer(RecipeBrowserModule* controller) : MinecraftUICustomRenderer(), controller(controller)
+TMI::TabIconRenderer::TabIconRenderer() : MinecraftUICustomRenderer()
 {
 }
 
@@ -16,7 +18,8 @@ void TMI::TabIconRenderer::render(MinecraftUIRenderContext& ctx, IClientInstance
         auto id = owner.mPropertyBag->mJsonValue.get("#tab_index", Json::Value(-1)).asInt();
         if (id > -1)
         {
-            ItemStack stack = controller->controller->currentTab->getIcon();
+			auto& controller = RecipeBrowserModule::getInstance();
+            ItemStack stack = controller.controller->currentTab->getIcon();
             if (stack.isNull() || stack == ItemStack::EMPTY_ITEM)
                 return;
 
@@ -66,7 +69,7 @@ void TMI::TabIconRenderer::render(MinecraftUIRenderContext& ctx, IClientInstance
 
             if (owner.mHover || owner.mParent.lock()->mChildren[0]->mHover || owner.mParent.lock()->mChildren[1]->mHover)
             {
-                controller->mHoveredStack = stack;
+                controller.mHoveredStack = stack;
             }
         }
     }

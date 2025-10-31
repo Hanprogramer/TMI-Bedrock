@@ -1,9 +1,12 @@
 #include "RecipeBrowserModule.hpp"
+#include "RecipeBrowserScreenController.hpp"
 
 namespace TMI {
-	RecipeBrowserModule::RecipeBrowserModule()
-	{
-	}
+
+	SafetyHookInline _UIControlFactory__populateCustomRenderComponent;
+	SafetyHookInline _CraftingScreenController__registerBindings;
+	SafetyHookInline _CraftingScreenController_handleEvent;
+	RecipeBrowserModule* recipeMod;
 
 
 	std::string RecipeBrowserModule::getModNameFromNamespace(std::string mNamespace) {
@@ -235,7 +238,7 @@ namespace TMI {
 		auto interactionModel = ContainerScreenController::interactionModelFromUIProfile(model->getUIProfile());
 		auto& item = *stack.getItem();
 		auto controller = std::make_shared<RecipeBrowserScreenController>(this, model, interactionModel, mRecipeWindowSelectedItemStack);
-		this->controller = controller;
+		//this->controller = controller;
 		auto scene = factory.createUIScene(game, clientInstance, "tmi.recipe_screen", controller);
 		auto screen = factory._createScreen(scene);
 		factory.getCurrentSceneStack()->pushScreen(screen, false);
@@ -413,5 +416,126 @@ namespace TMI {
 	ItemStack& RecipeBrowserModule::getOverlayItem(int index)
 	{
 		return queriedItems.at(index);
+	}
+	void UIControlFactory__populateCustomRenderComponent(UIControlFactory* self, const UIResolvedDef& resolved, UIControl& control) {
+		std::string rendererType = resolved.getAsString("renderer");
+		
+		if (rendererType == "tmi_recipe_slot_renderer") {
+		control.setComponent<CustomRenderComponent>(
+		std::make_unique<CustomRenderComponent>(control)
+		);
+
+		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+		component->setRenderer(std::make_shared<RecipeSlotRenderer>());
+
+		return;
+		}
+		else if (rendererType == "tmi_overlay_slot_renderer") {
+		control.setComponent<CustomRenderComponent>(
+		std::make_unique<CustomRenderComponent>(control)
+		);
+
+		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+		component->setRenderer(std::make_shared<OverlaySlotRenderer>());
+
+		return;
+		}
+		else if (rendererType == "tmi_overlay_grid_sizer_renderer") {
+		control.setComponent<CustomRenderComponent>(
+		std::make_unique<CustomRenderComponent>(control)
+		);
+
+		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+		component->setRenderer(std::make_shared<OverlayGridSizerRenderer>());
+
+		return;
+		}
+		else if (rendererType == "tmi_tab_icon_renderer") {
+		control.setComponent<CustomRenderComponent>(
+		std::make_unique<CustomRenderComponent>(control)
+		);
+
+		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+		component->setRenderer(std::make_shared<TabIconRenderer>());
+
+		return;
+		}
+
+		_UIControlFactory__populateCustomRenderComponent.call<void, UIControlFactory*, const UIResolvedDef&, UIControl&>(self, resolved, control);
+	}
+	void CraftingScreenController__registerBindings(CraftingScreenController* self) {
+		self->bindString("#tmi_page_text", []() {
+			return std::string("{}/{}", recipeMod->mOverlayPage + 1, recipeMod->mOverlayMaxPage + 1);
+			},
+			[]() { return true; });
+
+		self->registerButtonInteractedHandler(StringToNameId("tmi_prev"), [&](UIPropertyBag* props) {
+			recipeMod->mOverlayPage--;
+			recipeMod->refreshOverlayPage();
+			return ui::ViewRequest::Refresh;
+			});
+		self->registerButtonInteractedHandler(StringToNameId("tmi_next"), [&](UIPropertyBag* props) {
+			recipeMod->mOverlayPage++;
+			recipeMod->refreshOverlayPage();
+			return ui::ViewRequest::Refresh;
+			});
+		//self->bindFloat("#tmi_visible_slot_count", [self]() {
+		//	//if (recipeMod->mOverlayPage == recipeMod->mOverlayMaxPage) {
+		//	//	return 3;// recipeMod->overlayItemCount() - (recipeMod->mOverlayMaxPage * recipeMod->overlayItemCount());
+		//	//}
+		//	//return recipeMod->mOverlayItemPerPage;
+		//	return 5;
+		//	},
+		//	[]() { return true; }
+		//);
+
+
+		self->registerButtonInteractedHandler(StringToNameId("tmi_overlay_slot_pressed"), [&](UIPropertyBag* mPropertyBag) {
+			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
+				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt() + (recipeMod->mOverlayPage * recipeMod->mOverlayItemPerPage);
+				if (id > -1 && id < recipeMod->overlayItemCount()) {
+					ItemStack stack = recipeMod->getOverlayItem(id);
+					if (recipeMod->setRecipesForItem(*stack.getItem())) {
+						recipeMod->showRecipesWindow();
+					}
+				}
+			}
+			return ui::ViewRequest::Refresh;
+			});
+
+		self->registerButtonInteractedHandler(StringToNameId("tmi_overlay_slot_pressed_secondary"), [&](UIPropertyBag* mPropertyBag) {
+			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
+				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt() + (recipeMod->mOverlayPage * recipeMod->mOverlayItemPerPage);
+				if (id > -1 && id < recipeMod->overlayItemCount()) {
+					ItemStack stack = recipeMod->getOverlayItem(id);
+					if (recipeMod->setRecipesFromItem(*stack.getItem())) {
+						recipeMod->showRecipesWindow();
+					}
+				}
+			}
+			return ui::ViewRequest::Refresh;
+			});
+
+		_CraftingScreenController__registerBindings.call<void, CraftingScreenController*>(self);
+	}
+	ui::ViewRequest CraftingScreenController_handleEvent(CraftingScreenController* self, ScreenEvent& event) {
+		if (event.type == ScreenEventType::TextEditChange) {
+			if (event.data.textEdit.properties != nullptr) {
+				if (StringToNameId("tmi_search_box") == event.data.textEdit.id) {
+					auto newText = event.data.textEdit.properties->mJsonValue.get(std::string("#item_name"), Json::Value("")).asString();
+					recipeMod->setSearchQuery(newText);
+					return ui::ViewRequest::ConsumeEvent;
+				}
+			}
+		}
+		return _CraftingScreenController_handleEvent.call<ui::ViewRequest, CraftingScreenController*, ScreenEvent&>(self, event);
+	}
+	void RegisterHooks(RecipeBrowserModule* mod)
+	{
+		Amethyst::HookManager& hooks = Amethyst::GetHookManager();
+		recipeMod = mod;
+		HOOK(UIControlFactory, _populateCustomRenderComponent);
+		HOOK(CraftingScreenController, _registerBindings);
+		VHOOK(CraftingScreenController, handleEvent, this);
 	}
 }

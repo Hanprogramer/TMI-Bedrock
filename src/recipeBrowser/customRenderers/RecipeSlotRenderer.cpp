@@ -1,6 +1,8 @@
 #include "RecipeSlotRenderer.hpp"
+#include "recipeBrowser/RecipeBrowserScreenController.hpp"
+#include "recipeBrowser/RecipeBrowserModule.hpp"
 
-TMI::RecipeSlotRenderer::RecipeSlotRenderer(RecipeBrowserModule* controller) : MinecraftUICustomRenderer(), controller(controller) {}
+TMI::RecipeSlotRenderer::RecipeSlotRenderer() : MinecraftUICustomRenderer() {}
 
 std::shared_ptr<UICustomRenderer> TMI::RecipeSlotRenderer::clone() const
 {
@@ -11,8 +13,9 @@ void TMI::RecipeSlotRenderer::render(MinecraftUIRenderContext& ctx, IClientInsta
 {
 	if (owner.mPropertyBag != nullptr && !owner.mPropertyBag->mJsonValue.isNull() && owner.mPropertyBag->mJsonValue.isObject())
 	{
+		auto& controller = RecipeBrowserModule::getInstance();
 		auto id = owner.mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt();
-		auto recipe_index = owner.mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt() + (controller->controller->currentPage * 2) - 1;
+		auto recipe_index = owner.mPropertyBag->mJsonValue.get("#tmi_recipe_index", Json::Value(-1)).asInt() + (controller.controller->currentPage * 2) - 1;
 		auto isResultSlot = owner.mPropertyBag->mJsonValue.get("#tmi_is_result_slot", Json::Value(false)).asBool();
 		auto recipeType = owner.mPropertyBag->mJsonValue.get("#tmi_recipe_type", Json::Value("_unknown")).asString();
 		if (id > -1 && recipe_index > -1)
@@ -20,11 +23,11 @@ void TMI::RecipeSlotRenderer::render(MinecraftUIRenderContext& ctx, IClientInsta
 			ItemStack stack;
 			if (isResultSlot)
 			{
-				stack = controller->controller->currentTab->getResult(recipe_index);
+				stack = controller.controller->currentTab->getResult(recipe_index);
 			}
 			else
 			{
-				stack = controller->controller->currentTab->getIngredient(id, recipe_index).front(); // TODO Handle if zero or multiple
+				stack = controller.controller->currentTab->getIngredient(id, recipe_index).front(); // TODO Handle if zero or multiple
 			}
 
 			if (stack.isNull() || stack == ItemStack::EMPTY_ITEM)
@@ -76,7 +79,7 @@ void TMI::RecipeSlotRenderer::render(MinecraftUIRenderContext& ctx, IClientInsta
 
 			if (owner.mHover || owner.mParent.lock()->mChildren[0]->mHover)
 			{
-				controller->mHoveredStack = stack;
+				controller.mHoveredStack = stack;
 			}
 		}
 	}

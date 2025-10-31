@@ -28,20 +28,28 @@
 #include <mc/src/common/network/packet/InventoryContentPacket.hpp>
 #include <mc/src/common/world/item/ItemInstance.hpp>
 #include <mc/src/common/Minecraft.hpp>
-#include "RecipeBrowserScreenController.hpp"
+#include "customRenderers/RecipeSlotRenderer.hpp"
+#include "customRenderers/OverlaySlotRenderer.hpp"
+#include "customRenderers/OverlayGridSizerRenderer.hpp"
+#include "customRenderers/TabIconRenderer.hpp"
+#include <mc/src-client/common/client/gui/controls/UIControlFactory.hpp>
+#include <mc/src-client/common/client/gui/UIResolvedDef.hpp>
+#include <mc/src-client/common/client/gui/controls/UIPropertyBag.hpp>
+#include <mc/src-client/common/client/gui/controls/CustomRenderComponent.hpp>
+#include <mc/src-client/common/client/gui/screens/ScreenEvent.hpp>
 
 namespace TMI {
 
 	const char BUTTON_LEFT = 0x263b;
 	const char BUTTON_RIGHT = 0x263a;
 
-	SafetyHookInline _UIControlFactory__populateCustomRenderComponent;
-	SafetyHookInline _CraftingScreenController__registerBindings;
-	SafetyHookInline _CraftingScreenController_handleEvent;
-
+	class RecipeBrowserScreenController;
 	class RecipeBrowserModule {
 	public:
-		RecipeBrowserModule();
+		static RecipeBrowserModule& getInstance() {
+			static RecipeBrowserModule instance;
+			return instance;
+		}
 
 		ItemStack mRecipeWindowSelectedItemStack;
 		ItemStack mHoveredStack;
@@ -75,7 +83,7 @@ namespace TMI {
 
 		std::shared_ptr<RecipeBrowserScreenController> controller;
 
-		char last_button;
+		char last_button = 'a';
 
 		void initRecipeBrowser();
 
@@ -96,134 +104,26 @@ namespace TMI {
 		void setSearchQuery(std::string newQuery);
 
 		void refreshOverlayPage();
+
+	private:
+		// Private constructor to prevent direct instantiation
+		RecipeBrowserModule() { }
+
+		// Delete copy constructor and assignment operator
+		RecipeBrowserModule(const RecipeBrowserModule&) = delete;
+		RecipeBrowserModule& operator=(const RecipeBrowserModule&) = delete;
+
+		// Optionally delete move constructor and assignment operator
+		RecipeBrowserModule(RecipeBrowserModule&&) = delete;
+		RecipeBrowserModule& operator=(RecipeBrowserModule&&) = delete;
 	};
 
+	void UIControlFactory__populateCustomRenderComponent(UIControlFactory* self, const UIResolvedDef& resolved, UIControl& control);
 
-	RecipeBrowserModule* recipeMod;
+	void CraftingScreenController__registerBindings(CraftingScreenController* self);
 
-	void UIControlFactory__populateCustomRenderComponent(UIControlFactory* self, const UIResolvedDef& resolved, UIControl& control) {
-		std::string rendererType = resolved.getAsString("renderer");
-
-		if (rendererType == "tmi_recipe_slot_renderer") {
-			control.setComponent<CustomRenderComponent>(
-				std::make_unique<CustomRenderComponent>(control)
-			);
-
-			CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
-			component->setRenderer(std::make_shared<RecipeSlotRenderer>(recipeMod));
-
-			return;
-		}
-		else if (rendererType == "tmi_overlay_slot_renderer") {
-			control.setComponent<CustomRenderComponent>(
-				std::make_unique<CustomRenderComponent>(control)
-			);
-
-			CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
-			component->setRenderer(std::make_shared<OverlaySlotRenderer>(recipeMod));
-
-			return;
-		}
-		else if (rendererType == "tmi_overlay_grid_sizer_renderer") {
-			control.setComponent<CustomRenderComponent>(
-				std::make_unique<CustomRenderComponent>(control)
-			);
-
-			CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
-			component->setRenderer(std::make_shared<OverlayGridSizerRenderer>(recipeMod));
-
-			return;
-		}
-		else if (rendererType == "tmi_tab_icon_renderer") {
-			control.setComponent<CustomRenderComponent>(
-				std::make_unique<CustomRenderComponent>(control)
-			);
-
-			CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
-			component->setRenderer(std::make_shared<TabIconRenderer>(recipeMod));
-
-			return;
-		}
-
-		_UIControlFactory__populateCustomRenderComponent.call<void, UIControlFactory*, const UIResolvedDef&, UIControl&>(self, resolved, control);
-	}
-
-	void CraftingScreenController__registerBindings(CraftingScreenController* self) {
-		self->bindString("#tmi_page_text", []() {
-			return std::string("{}/{}", recipeMod->mOverlayPage + 1, recipeMod->mOverlayMaxPage + 1);
-			},
-			[]() { return true; });
-
-		self->registerButtonInteractedHandler(StringToNameId("tmi_prev"), [&](UIPropertyBag* props) {
-			recipeMod->mOverlayPage--;
-			recipeMod->refreshOverlayPage();
-			return ui::ViewRequest::Refresh;
-			});
-		self->registerButtonInteractedHandler(StringToNameId("tmi_next"), [&](UIPropertyBag* props) {
-			recipeMod->mOverlayPage++;
-			recipeMod->refreshOverlayPage();
-			return ui::ViewRequest::Refresh;
-			});
-		//self->bindFloat("#tmi_visible_slot_count", [self]() {
-		//	//if (recipeMod->mOverlayPage == recipeMod->mOverlayMaxPage) {
-		//	//	return 3;// recipeMod->overlayItemCount() - (recipeMod->mOverlayMaxPage * recipeMod->overlayItemCount());
-		//	//}
-		//	//return recipeMod->mOverlayItemPerPage;
-		//	return 5;
-		//	},
-		//	[]() { return true; }
-		//);
+	ui::ViewRequest CraftingScreenController_handleEvent(CraftingScreenController* self, ScreenEvent& event);
 
 
-		self->registerButtonInteractedHandler(StringToNameId("tmi_overlay_slot_pressed"), [&](UIPropertyBag* mPropertyBag) {
-			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
-				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt() + (recipeMod->mOverlayPage * recipeMod->mOverlayItemPerPage);
-				if (id > -1 && id < recipeMod->overlayItemCount()) {
-					ItemStack stack = recipeMod->getOverlayItem(id);
-					if (recipeMod->setRecipesForItem(*stack.getItem())) {
-						recipeMod->showRecipesWindow();
-					}
-				}
-			}
-			return ui::ViewRequest::Refresh;
-			});
-
-		self->registerButtonInteractedHandler(StringToNameId("tmi_overlay_slot_pressed_secondary"), [&](UIPropertyBag* mPropertyBag) {
-			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
-				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt() + (recipeMod->mOverlayPage * recipeMod->mOverlayItemPerPage);
-				if (id > -1 && id < recipeMod->overlayItemCount()) {
-					ItemStack stack = recipeMod->getOverlayItem(id);
-					if (recipeMod->setRecipesFromItem(*stack.getItem())) {
-						recipeMod->showRecipesWindow();
-					}
-				}
-			}
-			return ui::ViewRequest::Refresh;
-			});
-
-		_CraftingScreenController__registerBindings.call<void, CraftingScreenController*>(self);
-	}
-
-	ui::ViewRequest CraftingScreenController_handleEvent(CraftingScreenController* self, ScreenEvent& event) {
-		if (event.type == ScreenEventType::TextEditChange) {
-			if (event.data.textEdit.properties != nullptr) {
-				if (StringToNameId("tmi_search_box") == event.data.textEdit.id) {
-					auto newText = event.data.textEdit.properties->mJsonValue.get(std::string("#item_name"), Json::Value("")).asString();
-					recipeMod->setSearchQuery(newText);
-					return ui::ViewRequest::ConsumeEvent;
-				}
-			}
-		}
-		return _CraftingScreenController_handleEvent.call<ui::ViewRequest, CraftingScreenController*, ScreenEvent&>(self, event);
-	}
-
-
-	void RegisterHooks(RecipeBrowserModule* mod)
-	{
-		Amethyst::HookManager& hooks = Amethyst::GetHookManager();
-		recipeMod = mod;
-		HOOK(UIControlFactory, _populateCustomRenderComponent);
-		HOOK(CraftingScreenController, _registerBindings);
-		VHOOK(CraftingScreenController, handleEvent, this);
-	}
+	void RegisterHooks(RecipeBrowserModule* mod);
 }

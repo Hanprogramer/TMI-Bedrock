@@ -28,18 +28,11 @@
 #include <mc/src-client/common/client/gui/controls/CustomRenderComponent.hpp>
 #include <mc/src-client/common/client/gui/controls/UIPropertyBag.hpp>
 #include <mc/src-client/common/client/gui/screens/ScreenEvent.hpp>
-#include "recipeBrowser/RecipeBrowserModule.hpp"
-#include "customRenderers/RecipeSlotRenderer.hpp"
-#include "customRenderers/OverlaySlotRenderer.hpp"
-#include "customRenderers/OverlayGridSizerRenderer.hpp"
-#include "customRenderers/TabIconRenderer.hpp"
 #include "tabs/TMITab.hpp"
-#include "tabs/CraftingTab.hpp"
-#include "tabs/FurnaceTab.hpp"
 
 namespace TMI
 {
-
+	class RecipeBrowserModule; 
 	class RecipeBrowserScreenController : public ClientInstanceScreenController {
 	public:
 		ItemStack& mItemStack;
@@ -48,7 +41,7 @@ namespace TMI
 		int maxPage = 0;
 
 		std::string currentRecipeType = "";
-		std::vector<TMITab> tabs;
+		std::vector<TMITab*> tabs;
 		TMITab* currentTab;
 
 		RecipeBrowserModule* mModule;

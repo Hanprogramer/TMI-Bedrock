@@ -1,4 +1,7 @@
 #include "RecipeBrowserScreenController.hpp"
+#include "RecipeBrowserModule.hpp"
+#include "tabs/CraftingTab.hpp"
+#include "tabs/FurnaceTab.hpp"
 
 namespace TMI {
 	RecipeBrowserScreenController::RecipeBrowserScreenController(RecipeBrowserModule* module, std::shared_ptr<ClientInstanceScreenModel> model, InteractionModel interaction, ItemStack& itemStack) : ClientInstanceScreenController(model),
@@ -7,12 +10,14 @@ namespace TMI {
 		mItemStack = itemStack;
 		auto& player = *model->getPlayer();
 
-		// Add the tabs
-		auto craftingTab = CraftingTab(module);
-		tabs.push_back(craftingTab);
+		tabs = std::vector<TMITab*>();
 
-		auto furnaceTab = FurnaceTab(module);
-		tabs.push_back(furnaceTab);
+		// Add the tabs
+		CraftingTab craftingTab = CraftingTab(module);
+		tabs.push_back(&craftingTab);
+
+		FurnaceTab furnaceTab = FurnaceTab(module);
+		tabs.push_back(&furnaceTab);
 
 		currentTab = &craftingTab;
 		currentTabIndex = 0;
@@ -22,9 +27,9 @@ namespace TMI {
 
 	void RecipeBrowserScreenController::_registerBindings()
 	{
-		bindString("#title_text", [this]() {
-			return currentTab->getTitle();
-			}, []() { return true; });
+		//bindString("#title_text", [this]() {
+		//	return currentTab->getTitle();
+		//	}, []() { return true; });
 
 		bindString("#page_text", [this]() {
 			return std::format("{}/{}", currentPage + 1, maxPage + 1);
@@ -64,6 +69,8 @@ namespace TMI {
 		// Recipe count per page
 		bindFloat("#tmi_recipe_count", [this]() {
 			if (currentPage == maxPage || maxPage == 0) {
+				int a = 2;
+				a = 3;
 				return currentTab->getItemCount() - (2.0f * maxPage);
 			}
 			return 2.0f;
@@ -125,7 +132,7 @@ namespace TMI {
 				if (id > -1 && id < tabs.size() - 1) {
 					currentTabIndex = id;
 					currentPage = 0;
-					currentTab = &tabs[id];
+					currentTab = tabs[id];
 					maxPage = currentTab->getMaxPage();
 				}
 			}

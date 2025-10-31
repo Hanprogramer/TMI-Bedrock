@@ -1,11 +1,11 @@
 #include "CraftingTab.hpp"
 
-inline TMI::CraftingTab::CraftingTab(RecipeBrowserModule* recipeMod) : recipeMod(recipeMod)
+TMI::CraftingTab::CraftingTab(RecipeBrowserModule* recipeMod) : recipeMod(recipeMod)
 {
     mIcon.reinit("minercaft:crafting_table", 1, 0);
 }
 
-inline TMI::CraftingTab::~CraftingTab()
+TMI::CraftingTab::~CraftingTab()
 {
 }
 

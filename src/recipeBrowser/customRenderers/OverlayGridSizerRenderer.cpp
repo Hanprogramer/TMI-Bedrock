@@ -1,12 +1,13 @@
 #include "OverlayGridSizerRenderer.hpp"
+#include "recipeBrowser/RecipeBrowserModule.hpp"
 
-inline TMI::OverlayGridSizerRenderer::OverlayGridSizerRenderer(RecipeBrowserModule* recipeMod) : MinecraftUICustomRenderer(), mRecipeMod(recipeMod) {}
+TMI::OverlayGridSizerRenderer::OverlayGridSizerRenderer() : MinecraftUICustomRenderer() {}
 
-inline std::shared_ptr<UICustomRenderer> TMI::OverlayGridSizerRenderer::clone() const {
+std::shared_ptr<UICustomRenderer> TMI::OverlayGridSizerRenderer::clone() const {
 	return std::make_shared<OverlayGridSizerRenderer>();
 }
 
-inline void TMI::OverlayGridSizerRenderer::render(MinecraftUIRenderContext& ctx, IClientInstance& _client, UIControl& owner, int32_t pass, RectangleArea& renderAABB) {
+void TMI::OverlayGridSizerRenderer::render(MinecraftUIRenderContext& ctx, IClientInstance& _client, UIControl& owner, int32_t pass, RectangleArea& renderAABB) {
 	// Automatically caclulates the required stuffs
 	// note that this is still a bit buggy, the size only changes after 2nd resize
 	// the variable of the binding has changed, but the UI didnt detect it somehow
@@ -21,14 +22,15 @@ inline void TMI::OverlayGridSizerRenderer::render(MinecraftUIRenderContext& ctx,
 		json.append(w / 18);
 		json.append(h / 18);
 
-		mRecipeMod->mOverlayItemPerPage = (w / 18) * (h / 18);
+		auto& mRecipeMod = RecipeBrowserModule::getInstance();
+		mRecipeMod.mOverlayItemPerPage = (w / 18) * (h / 18);
 
-		if (mRecipeMod->mOverlayItemPerPage > 0)
-			mRecipeMod->mOverlayMaxPage = mRecipeMod->overlayItemCount() / mRecipeMod->mOverlayItemPerPage;
+		if (mRecipeMod.mOverlayItemPerPage > 0)
+			mRecipeMod.mOverlayMaxPage = mRecipeMod.overlayItemCount() / mRecipeMod.mOverlayItemPerPage;
 		else
-			mRecipeMod->mOverlayMaxPage = 0;
+			mRecipeMod.mOverlayMaxPage = 0;
 
 		owner.mChildren.front()->mPropertyBag->mJsonValue["#tmi_grid_size"] = json;
-		mRecipeMod->refreshOverlayPage();
+		mRecipeMod.refreshOverlayPage();
 	}
 }
