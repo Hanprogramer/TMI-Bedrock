@@ -154,7 +154,6 @@
                                             ],
                                             "anchor_from": "top_left",
                                             "anchor_to": "top_left",
-                                            "precached_grid_item_count": 100,
                                             "bindings": [
                                                 {
                                                     "binding_name": "#tmi_grid_size"
