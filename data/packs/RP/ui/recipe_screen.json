@@ -4,7 +4,7 @@
         "type": "panel",
         "size": [
             180,
-            190
+            206
         ],
         "anchor_from": "center",
         "anchor_to": "center",
@@ -194,487 +194,125 @@
             },
             // Content area holding the 3x3 grid, arrow and output slot
             {
-                "recipes_panel": {
-                    "type": "stack_panel",
+                "recipes_panel@tmi.recipes_panel": {}
+            }
+        ]
+    },
+    "recipes_panel": {
+        "type": "stack_panel",
+        "anchor_from": "center",
+        "anchor_to": "center",
+        "size": [
+            120,
+            136
+        ],
+        "offset": [0, -6],
+        "controls": [
+            {
+                "recipe1panel@tmi.recipe_panel": {
+                    "type": "panel",
                     "anchor_from": "center",
                     "anchor_to": "center",
+                    "layer": 2,
+                    "$tmi_recipe_type": "crafting_recipe",
+                    "$tmi_recipe_index": 0,
                     "size": [
                         120,
-                        136
+                        68
                     ],
                     "controls": [
                         {
-                            "recipe1panel@tmi.recipe_panel": {
-                                "type": "panel",
-                                "anchor_from": "center",
-                                "anchor_to": "center",
-                                "layer": 2,
-                                "$tmi_recipe_type": "crafting_recipe",
-                                "$tmi_recipe_index": 0,
+                            "bg": {
+                                "type": "image",
+                                "texture": "textures/ui/background_image",
                                 "size": [
                                     120,
                                     68
                                 ],
+                                "layer": 3,
+                                "keep_ratio": false,
+                                "fill": true,
+                                "nineslice_size": 8
+                            }
+                        },
+                        {
+                            "content": {
+                                "type": "stack_panel",
+                                "layer": 3,
+                                "orientation": "horizontal",
+                                "offset": [
+                                    -10,
+                                    8
+                                ],
                                 "controls": [
                                     {
-                                        "bg": {
-                                            "type": "image",
-                                            "texture": "textures/ui/background_image",
+                                        "crafting_grid": {
+                                            "type": "panel",
                                             "size": [
-                                                120,
-                                                68
+                                                54,
+                                                54
                                             ],
-                                            "layer": 3,
-                                            "keep_ratio": false,
-                                            "fill": true,
-                                            "nineslice_size": 8
-                                        }
-                                    },
-                                    {
-                                        "content": {
-                                            "type": "stack_panel",
-                                            "layer": 3,
-                                            "orientation": "horizontal",
                                             "offset": [
-                                                -10,
-                                                8
+                                                0,
+                                                0
                                             ],
                                             "controls": [
                                                 {
-                                                    "crafting_grid": {
-                                                        "type": "panel",
-                                                        "size": [
-                                                            54,
-                                                            54
-                                                        ],
-                                                        "offset": [
-                                                            0,
-                                                            0
-                                                        ],
-                                                        "controls": [
-                                                            {
-                                                                "input_grid@tmi.input_grid": {
-                                                                    "$tmi_recipe_index": 0
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "arroww": {
-                                                        "type": "panel",
-                                                        "size": [
-                                                            20,
-                                                            "100%"
-                                                        ],
-                                                        "controls": [
-                                                            {
-                                                                "arrow": {
-                                                                    "offset": [
-                                                                        0,
-                                                                        -6
-                                                                    ],
-                                                                    "type": "label",
-                                                                    "text": "→",
-                                                                    "font_size": "large",
-                                                                    "color": [
-                                                                        1.0,
-                                                                        1.0,
-                                                                        1.0
-                                                                    ],
-                                                                    "anchor_from": "center",
-                                                                    "anchor_to": "center"
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "result": {
-                                                        "size": [
-                                                            0,
-                                                            "100%"
-                                                        ],
-                                                        "type": "panel",
-                                                        "controls": [
-                                                            {
-                                                                "output_slot@tmi_common.slot_item_template": {
-                                                                    "offset": [
-                                                                        10,
-                                                                        -7
-                                                                    ],
-                                                                    "anchor_from": "center",
-                                                                    "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 0,
-                                                                    "$tmi_slot_id": 9,
-                                                                    "$tmi_is_result_slot": true
-                                                                }
-                                                            }
-                                                        ]
+                                                    "input_grid@tmi.input_grid": {
+                                                        "$tmi_recipe_index": 0
                                                     }
                                                 }
                                             ]
                                         }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "recipe2panel@tmi.recipe_panel": {
-                                "type": "panel",
-                                "anchor_from": "center",
-                                "anchor_to": "center",
-                                "layer": 2,
-                                "$tmi_recipe_type": "crafting_recipe",
-                                "$tmi_recipe_index": 1,
-                                "size": [
-                                    120,
-                                    68
-                                ],
-                                "controls": [
-                                    {
-                                        "bg": {
-                                            "type": "image",
-                                            "texture": "textures/ui/background_image",
-                                            "size": [
-                                                120,
-                                                68
-                                            ],
-                                            "layer": 3,
-                                            "keep_ratio": false,
-                                            "fill": true,
-                                            "nineslice_size": 8
-                                        }
                                     },
                                     {
-                                        "content": {
-                                            "type": "stack_panel",
-                                            "layer": 3,
-                                            "orientation": "horizontal",
-                                            "offset": [
-                                                -10,
-                                                8
+                                        "arroww": {
+                                            "type": "panel",
+                                            "size": [
+                                                20,
+                                                "100%"
                                             ],
                                             "controls": [
                                                 {
-                                                    "crafting_grid": {
-                                                        "type": "panel",
-                                                        "size": [
-                                                            54,
-                                                            54
-                                                        ],
+                                                    "arrow": {
                                                         "offset": [
                                                             0,
-                                                            0
+                                                            -6
                                                         ],
-                                                        "controls": [
-                                                            {
-                                                                "input_grid@tmi.input_grid": {
-                                                                    "$tmi_recipe_index": 1
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "arroww": {
-                                                        "type": "panel",
-                                                        "size": [
-                                                            20,
-                                                            "100%"
+                                                        "type": "label",
+                                                        "text": "→",
+                                                        "font_size": "large",
+                                                        "color": [
+                                                            1.0,
+                                                            1.0,
+                                                            1.0
                                                         ],
-                                                        "controls": [
-                                                            {
-                                                                "arrow": {
-                                                                    "offset": [
-                                                                        0,
-                                                                        -6
-                                                                    ],
-                                                                    "type": "label",
-                                                                    "text": "→",
-                                                                    "font_size": "large",
-                                                                    "color": [
-                                                                        1.0,
-                                                                        1.0,
-                                                                        1.0
-                                                                    ],
-                                                                    "anchor_from": "center",
-                                                                    "anchor_to": "center"
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "result": {
-                                                        "size": [
-                                                            0,
-                                                            "100%"
-                                                        ],
-                                                        "type": "panel",
-                                                        "controls": [
-                                                            {
-                                                                "output_slot@tmi_common.slot_item_template": {
-                                                                    "offset": [
-                                                                        10,
-                                                                        -7
-                                                                    ],
-                                                                    "anchor_from": "center",
-                                                                    "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 1,
-                                                                    "$tmi_slot_id": 9,
-                                                                    "$tmi_is_result_slot": true
-                                                                }
-                                                            }
-                                                        ]
+                                                        "anchor_from": "center",
+                                                        "anchor_to": "center"
                                                     }
                                                 }
                                             ]
                                         }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "furnace_panel@tmi.recipe_panel": {
-                                "type": "panel",
-                                "anchor_from": "center",
-                                "anchor_to": "center",
-                                "layer": 2,
-                                "$tmi_recipe_type": "furnace_recipe",
-                                "$tmi_recipe_index": 0,
-                                "size": [
-                                    120,
-                                    38
-                                ],
-                                "controls": [
-                                    {
-                                        "bg": {
-                                            "type": "image",
-                                            "texture": "textures/ui/background_image",
-                                            "size": [
-                                                120,
-                                                38
-                                            ],
-                                            "layer": 3,
-                                            "keep_ratio": false,
-                                            "fill": true,
-                                            "nineslice_size": 8
-                                        }
                                     },
                                     {
-                                        "content": {
-                                            "type": "stack_panel",
-                                            "layer": 3,
-                                            "orientation": "horizontal",
-                                            "offset": [
-                                                -10,
-                                                8
-                                            ],
-                                            "controls": [
-                                                {
-                                                    "crafting_grid": {
-                                                        "type": "panel",
-                                                        "size": [
-                                                            18,
-                                                            "100%"
-                                                        ],
-                                                        "offset": [
-                                                            0,
-                                                            0
-                                                        ],
-                                                        "controls": [
-                                                            {
-                                                                "output_slot@tmi_common.slot_item_template": {
-                                                                    "offset": [
-                                                                        10,
-                                                                        -7
-                                                                    ],
-                                                                    "anchor_from": "center",
-                                                                    "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 0,
-                                                                    "$tmi_slot_id": 0,
-                                                                    "$tmi_is_result_slot": false
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "arroww": {
-                                                        "type": "panel",
-                                                        "size": [
-                                                            20,
-                                                            "100%"
-                                                        ],
-                                                        "controls": [
-                                                            {
-                                                                "arrow": {
-                                                                    "offset": [
-                                                                        10,
-                                                                        -6
-                                                                    ],
-                                                                    "type": "label",
-                                                                    "text": "→",
-                                                                    "font_size": "large",
-                                                                    "color": [
-                                                                        1.0,
-                                                                        1.0,
-                                                                        1.0
-                                                                    ],
-                                                                    "anchor_from": "center",
-                                                                    "anchor_to": "center"
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "result": {
-                                                        "size": [
-                                                            18,
-                                                            "100%"
-                                                        ],
-                                                        "type": "panel",
-                                                        "controls": [
-                                                            {
-                                                                "output_slot@tmi_common.slot_item_template": {
-                                                                    "offset": [
-                                                                        10,
-                                                                        -7
-                                                                    ],
-                                                                    "anchor_from": "center",
-                                                                    "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 0,
-                                                                    "$tmi_slot_id": 9,
-                                                                    "$tmi_is_result_slot": true
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "furnace_panel@tmi.recipe_panel": {
-                                "type": "panel",
-                                "anchor_from": "center",
-                                "anchor_to": "center",
-                                "layer": 2,
-                                "$tmi_recipe_type": "furnace_recipe",
-                                "$tmi_recipe_index": 1,
-                                "size": [
-                                    120,
-                                    38
-                                ],
-                                "controls": [
-                                    {
-                                        "bg": {
-                                            "type": "image",
-                                            "texture": "textures/ui/background_image",
+                                        "result": {
                                             "size": [
-                                                120,
-                                                38
+                                                0,
+                                                "100%"
                                             ],
-                                            "layer": 3,
-                                            "keep_ratio": false,
-                                            "fill": true,
-                                            "nineslice_size": 8
-                                        }
-                                    },
-                                    {
-                                        "content": {
-                                            "type": "stack_panel",
-                                            "layer": 3,
-                                            "orientation": "horizontal",
-                                            "offset": [
-                                                -10,
-                                                8
-                                            ],
+                                            "type": "panel",
                                             "controls": [
                                                 {
-                                                    "crafting_grid": {
-                                                        "type": "panel",
-                                                        "size": [
-                                                            18,
-                                                            "100%"
-                                                        ],
+                                                    "output_slot@tmi_common.slot_item_template": {
                                                         "offset": [
-                                                            0,
-                                                            0
+                                                            10,
+                                                            -7
                                                         ],
-                                                        "controls": [
-                                                            {
-                                                                "output_slot@tmi_common.slot_item_template": {
-                                                                    "offset": [
-                                                                        10,
-                                                                        -7
-                                                                    ],
-                                                                    "anchor_from": "center",
-                                                                    "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 1,
-                                                                    "$tmi_slot_id": 0,
-                                                                    "$tmi_is_result_slot": false
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "arroww": {
-                                                        "type": "panel",
-                                                        "size": [
-                                                            20,
-                                                            "100%"
-                                                        ],
-                                                        "controls": [
-                                                            {
-                                                                "arrow": {
-                                                                    "offset": [
-                                                                        10,
-                                                                        -6
-                                                                    ],
-                                                                    "type": "label",
-                                                                    "text": "→",
-                                                                    "font_size": "large",
-                                                                    "color": [
-                                                                        1.0,
-                                                                        1.0,
-                                                                        1.0
-                                                                    ],
-                                                                    "anchor_from": "center",
-                                                                    "anchor_to": "center"
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "result": {
-                                                        "size": [
-                                                            18,
-                                                            "100%"
-                                                        ],
-                                                        "type": "panel",
-                                                        "controls": [
-                                                            {
-                                                                "output_slot@tmi_common.slot_item_template": {
-                                                                    "offset": [
-                                                                        10,
-                                                                        -7
-                                                                    ],
-                                                                    "anchor_from": "center",
-                                                                    "anchor_to": "center",
-                                                                    "$tmi_recipe_index": 1,
-                                                                    "$tmi_slot_id": 9,
-                                                                    "$tmi_is_result_slot": true
-                                                                }
-                                                            }
-                                                        ]
+                                                        "anchor_from": "center",
+                                                        "anchor_to": "center",
+                                                        "$tmi_recipe_index": 0,
+                                                        "$tmi_slot_id": 9,
+                                                        "$tmi_is_result_slot": true
                                                     }
                                                 }
                                             ]
@@ -684,6 +322,142 @@
                             }
                         }
                     ]
+                }
+            },
+            {
+                "recipe2panel@tmi.recipe_panel": {
+                    "type": "panel",
+                    "anchor_from": "center",
+                    "anchor_to": "center",
+                    "layer": 2,
+                    "$tmi_recipe_type": "crafting_recipe",
+                    "$tmi_recipe_index": 1,
+                    "size": [
+                        120,
+                        68
+                    ],
+                    "controls": [
+                        {
+                            "bg": {
+                                "type": "image",
+                                "texture": "textures/ui/background_image",
+                                "size": [
+                                    120,
+                                    68
+                                ],
+                                "layer": 3,
+                                "keep_ratio": false,
+                                "fill": true,
+                                "nineslice_size": 8
+                            }
+                        },
+                        {
+                            "content": {
+                                "type": "stack_panel",
+                                "layer": 3,
+                                "orientation": "horizontal",
+                                "offset": [
+                                    -10,
+                                    8
+                                ],
+                                "controls": [
+                                    {
+                                        "crafting_grid": {
+                                            "type": "panel",
+                                            "size": [
+                                                54,
+                                                54
+                                            ],
+                                            "offset": [
+                                                0,
+                                                0
+                                            ],
+                                            "controls": [
+                                                {
+                                                    "input_grid@tmi.input_grid": {
+                                                        "$tmi_recipe_index": 1
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "arroww": {
+                                            "type": "panel",
+                                            "size": [
+                                                20,
+                                                "100%"
+                                            ],
+                                            "controls": [
+                                                {
+                                                    "arrow": {
+                                                        "offset": [
+                                                            0,
+                                                            -6
+                                                        ],
+                                                        "type": "label",
+                                                        "text": "→",
+                                                        "font_size": "large",
+                                                        "color": [
+                                                            1.0,
+                                                            1.0,
+                                                            1.0
+                                                        ],
+                                                        "anchor_from": "center",
+                                                        "anchor_to": "center"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "result": {
+                                            "size": [
+                                                0,
+                                                "100%"
+                                            ],
+                                            "type": "panel",
+                                            "controls": [
+                                                {
+                                                    "output_slot@tmi_common.slot_item_template": {
+                                                        "offset": [
+                                                            10,
+                                                            -7
+                                                        ],
+                                                        "anchor_from": "center",
+                                                        "anchor_to": "center",
+                                                        "$tmi_recipe_index": 1,
+                                                        "$tmi_slot_id": 9,
+                                                        "$tmi_is_result_slot": true
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "furnace_panel_0@tmi.furnace_panel": {
+                    "$tmi_recipe_index": 0
+                }
+            },
+            {
+                "furnace_panel_1@tmi.furnace_panel": {
+                    "$tmi_recipe_index": 1
+                }
+            },
+            {
+                "furnace_panel_2@tmi.furnace_panel": {
+                    "$tmi_recipe_index": 2
+                }
+            },
+            {
+                "furnace_panel_3@tmi.furnace_panel": {
+                    "$tmi_recipe_index": 3
                 }
             }
         ]

@@ -25,7 +25,7 @@ inline ItemStack TMI::FurnaceTab::getIcon() {
 
 inline int TMI::FurnaceTab::getItemPerPage()
 {
-	return 2;
+	return 4;
 }
 
 inline int TMI::FurnaceTab::getItemCount() {

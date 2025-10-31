@@ -1,0 +1,123 @@
+{
+    "namespace": "tmi",
+    "furnace_panel@tmi.recipe_panel": {
+        "type": "panel",
+        "anchor_from": "center",
+        "anchor_to": "center",
+        "layer": 2,
+        "$tmi_recipe_type": "furnace_recipe",
+        "$tmi_recipe_index": 0,
+        "size": [
+            120,
+            38
+        ],
+        "controls": [
+            {
+                "bg": {
+                    "type": "image",
+                    "texture": "textures/ui/background_image",
+                    "size": [
+                        120,
+                        38
+                    ],
+                    "layer": 3,
+                    "keep_ratio": false,
+                    "fill": true,
+                    "nineslice_size": 8
+                }
+            },
+            {
+                "content": {
+                    "type": "stack_panel",
+                    "layer": 3,
+                    "orientation": "horizontal",
+                    "offset": [
+                        -10,
+                        8
+                    ],
+                    "controls": [
+                        {
+                            "crafting_grid": {
+                                "type": "panel",
+                                "size": [
+                                    18,
+                                    "100%"
+                                ],
+                                "offset": [
+                                    0,
+                                    0
+                                ],
+                                "controls": [
+                                    {
+                                        "output_slot@tmi_common.slot_item_template": {
+                                            "offset": [
+                                                10,
+                                                -7
+                                            ],
+                                            "anchor_from": "center",
+                                            "anchor_to": "center",
+                                            "$tmi_slot_id": 0,
+                                            "$tmi_is_result_slot": false
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "arroww": {
+                                "type": "panel",
+                                "size": [
+                                    20,
+                                    "100%"
+                                ],
+                                "controls": [
+                                    {
+                                        "arrow": {
+                                            "offset": [
+                                                10,
+                                                -6
+                                            ],
+                                            "type": "label",
+                                            "text": "→",
+                                            "font_size": "large",
+                                            "color": [
+                                                1.0,
+                                                1.0,
+                                                1.0
+                                            ],
+                                            "anchor_from": "center",
+                                            "anchor_to": "center"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "result": {
+                                "size": [
+                                    18,
+                                    "100%"
+                                ],
+                                "type": "panel",
+                                "controls": [
+                                    {
+                                        "output_slot@tmi_common.slot_item_template": {
+                                            "offset": [
+                                                10,
+                                                -7
+                                            ],
+                                            "anchor_from": "center",
+                                            "anchor_to": "center",
+                                            "$tmi_slot_id": 9,
+                                            "$tmi_is_result_slot": true
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
