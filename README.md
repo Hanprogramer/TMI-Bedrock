@@ -1,6 +1,6 @@
 # TMI-Bedrock
 <p align="center">
-<img width="256" height="256" alt="logo" src="https://github.com/user-attachments/assets/83deccfc-607b-4a9b-86f6-6b78e8875e04" />
+    <img width="1280" height="640" alt="github-thumbnail" src="https://github.com/user-attachments/assets/ca62e9e6-2aaf-41b8-b618-586bb3690e37" />
 </p>
 
 
