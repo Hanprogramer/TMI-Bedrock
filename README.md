@@ -1,9 +1,18 @@
 # TMI-Bedrock
+<p align="center">
+    <img width="1280" height="640" alt="github-thumbnail" src="https://github.com/user-attachments/assets/ca62e9e6-2aaf-41b8-b618-586bb3690e37" />
+</p>
+
 
 A mod that gives useful informations about the game, especially for mods
 <img width="1918" height="996" alt="image" src="https://github.com/user-attachments/assets/ebf8cda1-5d31-481a-a8f0-3f9ff810da52" />
+<img width="1920" height="1008" alt="Screenshot 2025-11-01 125942" src="https://github.com/user-attachments/assets/216769f3-a84c-4f64-9c60-8d2d300f91fd" />
+<img width="1920" height="1006" alt="Screenshot 2025-11-01 130028" src="https://github.com/user-attachments/assets/12471090-bd94-4bda-bc90-acb3ffc3ffb9" />
 
+# For players
+To install, you can do so by downloading from the releases page then put it in the launcher's mods folder
 
+# For developers
 ## How to configure
 
 1. Open `xmake.lua` and configure the mod options:
