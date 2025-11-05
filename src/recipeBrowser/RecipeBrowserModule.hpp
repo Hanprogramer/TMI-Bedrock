@@ -104,6 +104,7 @@ namespace TMI {
 		void setSearchQuery(std::string newQuery);
 
 		void refreshOverlayPage();
+		void cleanup();
 
 	private:
 		// Private constructor to prevent direct instantiation

@@ -121,8 +121,12 @@ namespace TMI {
 			if (auto blockRegistry = blockRegistryRef.lock()) {
 				for (const auto& [id, block] : blockRegistry->mBlockLookupMap) {
 					auto stack = ItemStack();
+
 					stack.reinit(*block, 1);
-					if (stack.getItem() == nullptr) continue; // Skip blocks that can't be turned into item
+					if (stack.getItem() == nullptr) {
+						Log::Info("Skipped {} because it doesn't have an Item class", id.getString());
+						continue; // Skip blocks that can't be turned into item
+					}
 					itemMap.insert(std::pair<std::string, ItemStack>(id.getString(), stack));
 				}
 			}
@@ -200,6 +204,14 @@ namespace TMI {
 
 	}
 
+	void RecipeBrowserModule::cleanup()
+	{
+		initialized = false;
+		mCraftingRecipes.clear();
+		mFurnaceRecipes.clear();
+		itemMap.clear();
+	}
+
 	void RecipeBrowserModule::OnMouseInput(MouseInputEvent event) {
 		mposX = event.x;
 		mposY = event.y;
@@ -220,6 +232,10 @@ namespace TMI {
 		Amethyst::GetEventBus().AddListener<AfterRenderUIEvent>([&](AfterRenderUIEvent ev) { OnAfterRenderUI(ev); });
 		Amethyst::GetEventBus().AddListener<BeforeRenderUIEvent>([&](BeforeRenderUIEvent ev) { OnBeforeRenderUI(ev); });
 		Amethyst::GetEventBus().AddListener<MouseInputEvent>([&](MouseInputEvent ev) { OnMouseInput(ev); });
+		Amethyst::GetEventBus().AddListener<OnLevelDestroyedEvent>([&](OnLevelDestroyedEvent ev) {
+			// Cleanup
+			RecipeBrowserModule::getInstance().cleanup();
+			});
 		RegisterHooks(this);
 	}
 
@@ -440,46 +456,46 @@ namespace TMI {
 	}
 	void UIControlFactory__populateCustomRenderComponent(UIControlFactory* self, const UIResolvedDef& resolved, UIControl& control) {
 		std::string rendererType = resolved.getAsString("renderer");
-		
+
 		if (rendererType == "tmi_recipe_slot_renderer") {
-		control.setComponent<CustomRenderComponent>(
-		std::make_unique<CustomRenderComponent>(control)
-		);
+			control.setComponent<CustomRenderComponent>(
+				std::make_unique<CustomRenderComponent>(control)
+			);
 
-		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
-		component->setRenderer(std::make_shared<RecipeSlotRenderer>());
+			CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+			component->setRenderer(std::make_shared<RecipeSlotRenderer>());
 
-		return;
+			return;
 		}
 		else if (rendererType == "tmi_overlay_slot_renderer") {
-		control.setComponent<CustomRenderComponent>(
-		std::make_unique<CustomRenderComponent>(control)
-		);
+			control.setComponent<CustomRenderComponent>(
+				std::make_unique<CustomRenderComponent>(control)
+			);
 
-		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
-		component->setRenderer(std::make_shared<OverlaySlotRenderer>());
+			CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+			component->setRenderer(std::make_shared<OverlaySlotRenderer>());
 
-		return;
+			return;
 		}
 		else if (rendererType == "tmi_overlay_grid_sizer_renderer") {
-		control.setComponent<CustomRenderComponent>(
-		std::make_unique<CustomRenderComponent>(control)
-		);
+			control.setComponent<CustomRenderComponent>(
+				std::make_unique<CustomRenderComponent>(control)
+			);
 
-		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
-		component->setRenderer(std::make_shared<OverlayGridSizerRenderer>());
+			CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+			component->setRenderer(std::make_shared<OverlayGridSizerRenderer>());
 
-		return;
+			return;
 		}
 		else if (rendererType == "tmi_tab_icon_renderer") {
-		control.setComponent<CustomRenderComponent>(
-		std::make_unique<CustomRenderComponent>(control)
-		);
+			control.setComponent<CustomRenderComponent>(
+				std::make_unique<CustomRenderComponent>(control)
+			);
 
-		CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
-		component->setRenderer(std::make_shared<TabIconRenderer>());
+			CustomRenderComponent* component = control.getComponent<CustomRenderComponent>();
+			component->setRenderer(std::make_shared<TabIconRenderer>());
 
-		return;
+			return;
 		}
 
 		_UIControlFactory__populateCustomRenderComponent.call<void, UIControlFactory*, const UIResolvedDef&, UIControl&>(self, resolved, control);
