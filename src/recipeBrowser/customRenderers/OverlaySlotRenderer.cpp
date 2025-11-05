@@ -1,11 +1,9 @@
 #include "OverlaySlotRenderer.hpp"
 #include "recipeBrowser/RecipeBrowserModule.hpp"
-#include <mc/src-client/common/client/gui/controls/renderers/FlyingItemRenderer.hpp>
 
 
 
 TMI::OverlaySlotRenderer::OverlaySlotRenderer() : CustomItemRenderer() {
-	auto* flying = new FlyingItemRenderer(this);
 }
 
 std::shared_ptr<UICustomRenderer> TMI::OverlaySlotRenderer::clone() const
