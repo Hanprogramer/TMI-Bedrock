@@ -47,20 +47,26 @@ namespace TMI {
 
 	void RecipeBrowserModule::drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx) {
 		if (stack.isNull()) return;
+		Item& item = *stack.getItem();
+		std::string text;
+		ClientInstance& mc = *Amethyst::GetClientCtx().mClientInstance;
+		Level& level = *mc.mMinecraft->getLevel();
+		item.appendFormattedHovertext(stack, level, text, false);
+		text = text.substr(0, text.size() - 3); // remove the last \n
+		drawFakeTextTooltip(text, ctx);
+	}
+
+	void RecipeBrowserModule::drawFakeTextTooltip(std::string text, MinecraftUIRenderContext& ctx)
+	{
 		// Draw the background
 		ClientInstance& mc = *Amethyst::GetClientCtx().mClientInstance;
 		Vec2 screenSize = mc.mGuiData->clientUIScreenSize;
 		Font& font = *ctx.mDebugTextFontHandle.mDefaultFont.get();
 		auto fontHandlePtr = Bedrock::NonOwnerPointer<const FontHandle>(&ctx.mDebugTextFontHandle);
 
-		Item& item = *stack.getItem();
 		const int padding = 4;
 		const int maxWidth = 300;
 		const int maxHeight = 100;
-		std::string text;
-		Level& level = *mc.mMinecraft->getLevel();
-		item.appendFormattedHovertext(stack, level, text, false);
-		text = text.substr(0, text.size() - 3); // remove the last \n
 
 		TextMeasureData tmd = TextMeasureData{
 				1,  // fontSize
@@ -113,7 +119,7 @@ namespace TMI {
 		auto& mc = Amethyst::GetClientCtx().mClientInstance;
 		auto& ctx = event.ctx;
 
-		if (mc->mClientState != ClientInstanceState::Playing) return;
+		if (mc == nullptr || mc->mClientState != ClientInstanceState::Playing) return;
 		if (!initialized)
 		{
 			// Regisster blocks
@@ -151,10 +157,16 @@ namespace TMI {
 			initialized = true;
 		}
 
+		// Render custom tooltip text
+		if (!mHoveredText.empty()) {
+			drawFakeTextTooltip(mHoveredText, ctx);
+		}
 		// Render custom tooltip renderer
-		if (!mHoveredStack.isNull())
+		else if (!mHoveredStack.isNull())
 			drawFakeTooltip(mHoveredStack, ctx);
+
 		mHoveredStack = ItemStack::EMPTY_ITEM;
+		mHoveredText = "";
 	}
 
 	void RecipeBrowserModule::OnBeforeRenderUI(BeforeRenderUIEvent event) {

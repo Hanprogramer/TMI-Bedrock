@@ -27,7 +27,7 @@ void TMI::TabIconRenderer::render(MinecraftUIRenderContext& ctx, IClientInstance
 
             if (owner.mHover || owner.mParent.lock()->mChildren[0]->mHover || owner.mParent.lock()->mChildren[1]->mHover)
             {
-                controller.mHoveredStack = stack;
+                controller.mHoveredText = controller.controller->currentTab->getTitle();
             }
         }
     }

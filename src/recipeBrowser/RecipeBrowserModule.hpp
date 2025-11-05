@@ -53,6 +53,8 @@ namespace TMI {
 
 		ItemStack mRecipeWindowSelectedItemStack;
 		ItemStack mHoveredStack;
+		std::string mHoveredText;
+
 		int mRecipeWindowCurrentPage = 0;
 		int mRecipeWindowMaxPage = 0;
 		int mRecipeWindowCurrentTab = 0;
@@ -98,6 +100,7 @@ namespace TMI {
 		std::string getModNameFromNamespace(std::string mNamespace);
 		std::string getItemName(ItemStack& stack);
 		void drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx);
+		void drawFakeTextTooltip(std::string text, MinecraftUIRenderContext& ctx);
 		void OnAfterRenderUI(AfterRenderUIEvent event);
 		void OnBeforeRenderUI(BeforeRenderUIEvent event);
 		void OnMouseInput(MouseInputEvent event);
