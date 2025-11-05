@@ -109,7 +109,7 @@ void CrossairInfoModule::OnAfterRenderUi(BeforeRenderUIEvent event) {
 			stack->mShowPickup = false;
 
 			// Render the item
-			renderCtxPtr.itemRenderer->renderGuiItemNew(&renderCtxPtr, stack, 0, (x + padding), y + padding, false, 1.0f, 1.0f, 1.25f);
+			renderCtxPtr.itemRenderer.renderGuiItemNew(&renderCtxPtr, stack, 0, (x + padding), y + padding, false, 1.0f, 1.0f, 1.25f);
 			ctx.flushImages(mce::Color::WHITE, 1.0f, "ui_flush");
 			
 

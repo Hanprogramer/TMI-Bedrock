@@ -41,9 +41,9 @@ namespace TMI {
 			auto* player = client.getLocalPlayer();
 			auto frame = item.getAnimationFrameFor((Mob*)player, false, &stack, true);
 
-			renderCtx.itemRenderer->renderGuiItemNew(&renderCtx, &stack, frame, pos.x + 1.0f, pos.y - yOffset + 1.0f, false, 1.0f, mPropagatedAlpha, 1.0f);
+			renderCtx.itemRenderer.renderGuiItemNew(&renderCtx, &stack, frame, pos.x + 1.0f, pos.y - yOffset + 1.0f, false, 1.0f, mPropagatedAlpha, 1.0f);
 			if (item.isGlint(stack))
-				renderCtx.itemRenderer->renderGuiItemNew(&renderCtx, &stack, frame, pos.x + 1.0f, pos.y - yOffset + 1.0f, true, 1.0f, mPropagatedAlpha, 1.0f);
+				renderCtx.itemRenderer.renderGuiItemNew(&renderCtx, &stack, frame, pos.x + 1.0f, pos.y - yOffset + 1.0f, true, 1.0f, mPropagatedAlpha, 1.0f);
 
 			mce::Color color(1.0f, 1.0f, 1.0f, mPropagatedAlpha);
 			ctx.flushImages(color, 1.0f, "ui_flush");
