@@ -14,7 +14,7 @@ void TMI::OverlayGridSizerRenderer::render(MinecraftUIRenderContext& ctx, IClien
 	int w = owner.mSize.x;//(renderAABB._x1 - renderAABB._x0);
 	int h = owner.mSize.y;//(renderAABB._y1 - renderAABB._y0);
 	if (lastW != w || lastH != h) {
-		Log::Info("Custom grid {}, {}", owner.mSize.x, owner.mSize.y);
+		//Log::Info("Custom grid {}, {}", owner.mSize.x, owner.mSize.y);
 		lastW = w;
 		lastH = h;
 

@@ -2,10 +2,11 @@
 #include <mc/src-client/common/client/gui/controls/renderers/MinecraftUICustomRenderer.hpp>
 #include <mc/src-client/common/client/gui/gui/UIControl.hpp>
 #include <mc/src-client/common/client/gui/controls/UIPropertyBag.hpp>
+#include "BaseSlotRenderer.hpp"
 
 namespace TMI
 {
-    class OverlaySlotRenderer : public MinecraftUICustomRenderer
+    class OverlaySlotRenderer : public CustomItemRenderer
     {
     public:
         OverlaySlotRenderer();

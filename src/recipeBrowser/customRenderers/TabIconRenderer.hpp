@@ -2,10 +2,10 @@
 #include <mc/src-client/common/client/gui/controls/renderers/MinecraftUICustomRenderer.hpp>
 #include <mc/src-client/common/client/gui/gui/UIControl.hpp>
 #include <mc/src-client/common/client/gui/controls/UIPropertyBag.hpp>
-
+#include "BaseSlotRenderer.hpp"
 namespace TMI {
 
-    class TabIconRenderer : public MinecraftUICustomRenderer {
+    class TabIconRenderer : public CustomItemRenderer {
     public:
         TabIconRenderer();
         virtual std::shared_ptr<UICustomRenderer> clone() const override;
