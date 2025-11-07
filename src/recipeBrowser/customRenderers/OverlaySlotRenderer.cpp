@@ -1,8 +1,7 @@
 #include "OverlaySlotRenderer.hpp"
 #include "recipeBrowser/RecipeBrowserModule.hpp"
 
-
-
+#include <mc/src/common/locale/I18n.hpp>
 TMI::OverlaySlotRenderer::OverlaySlotRenderer() : CustomItemRenderer() {
 }
 
@@ -27,7 +26,23 @@ void TMI::OverlaySlotRenderer::render(MinecraftUIRenderContext& ctx, IClientInst
 
 			if (owner.mHover || owner.mParent.lock()->mChildren[0]->mHover)
 			{
-				mRecipeMod.mHoveredStack = stack;
+				if (mRecipeMod.isCheatEnabled()) {
+					if (mRecipeMod.isAddItemKeyHeld())
+						mRecipeMod.mHoveredText = mRecipeMod.getItemTooltipText(stack) 
+							+ "\n" + std::vformat("text.tmi.overlay_press_add"_i18n, std::make_format_args(stack.getItem()->mMaxStackSize)) 
+							+ "\n" + "text.tmi.overlay_press_add_secondary"_i18n;
+					else {
+
+						auto& options = *Amethyst::GetClientCtx().mOptions;
+						auto& mapping = *options.getCurrentKeyboardRemapping();
+						auto* keymapping = mapping.getKeymappingByAction("key.tmi.cheat_add_item");
+						std::string keyName = keymapping ? mapping.getMappedKeyName(*keymapping) : "Unknown";
+
+						mRecipeMod.mHoveredText = mRecipeMod.getItemTooltipText(stack) + "\n" + std::vformat("text.tmi.overlay_hold_add_item"_i18n, std::make_format_args(keyName));
+					}
+				}
+				else
+					mRecipeMod.mHoveredStack = stack;
 			}
 		}
 	}

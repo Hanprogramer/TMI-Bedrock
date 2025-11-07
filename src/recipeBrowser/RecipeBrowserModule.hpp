@@ -99,6 +99,8 @@ namespace TMI {
 
 		std::string getModNameFromNamespace(std::string mNamespace);
 		std::string getItemName(ItemStack& stack);
+
+		std::string getItemTooltipText(ItemStack& stack);
 		void drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx);
 		void drawFakeTextTooltip(std::string text, MinecraftUIRenderContext& ctx);
 		void OnAfterRenderUI(AfterRenderUIEvent event);
@@ -108,6 +110,9 @@ namespace TMI {
 
 		void refreshOverlayPage();
 		void cleanup();
+
+		bool isCheatEnabled();
+		bool isAddItemKeyHeld();
 
 	private:
 		// Private constructor to prevent direct instantiation

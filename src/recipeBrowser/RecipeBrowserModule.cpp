@@ -1,5 +1,7 @@
 #include "RecipeBrowserModule.hpp"
 #include "RecipeBrowserScreenController.hpp"
+#include <mc/src/common/world/level/storage/LevelData.hpp>
+#include <mc/src/common/server/ServerPlayer.hpp>
 
 namespace TMI {
 
@@ -7,6 +9,9 @@ namespace TMI {
 	SafetyHookInline _CraftingScreenController__registerBindings;
 	SafetyHookInline _CraftingScreenController_handleEvent;
 	RecipeBrowserModule* recipeMod;
+	bool AddItemKeyHeld = false;
+	
+
 
 
 	std::string RecipeBrowserModule::getModNameFromNamespace(std::string mNamespace) {
@@ -45,15 +50,19 @@ namespace TMI {
 		return item.buildDescriptionName(stack);
 	}
 
-	void RecipeBrowserModule::drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx) {
-		if (stack.isNull()) return;
+	std::string RecipeBrowserModule::getItemTooltipText(ItemStack& stack) {
 		Item& item = *stack.getItem();
 		std::string text;
 		ClientInstance& mc = *Amethyst::GetClientCtx().mClientInstance;
 		Level& level = *mc.mMinecraft->getLevel();
 		item.appendFormattedHovertext(stack, level, text, false);
-		text = text.substr(0, text.size() - 3); // remove the last \n
-		drawFakeTextTooltip(text, ctx);
+		return text.substr(0, text.size() - 3); // remove the last \n
+	}
+
+	void RecipeBrowserModule::drawFakeTooltip(ItemStack& stack, MinecraftUIRenderContext& ctx) {
+		if (stack.isNull()) return;
+		auto tooltip = getItemTooltipText(stack);
+		drawFakeTextTooltip(tooltip, ctx);
 	}
 
 	void RecipeBrowserModule::drawFakeTextTooltip(std::string text, MinecraftUIRenderContext& ctx)
@@ -224,6 +233,18 @@ namespace TMI {
 		itemMap.clear();
 	}
 
+	bool RecipeBrowserModule::isCheatEnabled()
+	{
+		return (Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getLevel()->getLevelData().mCheatsEnabled
+			&& static_cast<std::int8_t>(Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->getCommandPermissionLevel()) >= static_cast<std::int8_t>(CommandPermissionLevel::Admin))
+			|| Amethyst::GetClientCtx().mClientInstance->getLocalPlayer()->isCreative();
+	}
+
+	bool RecipeBrowserModule::isAddItemKeyHeld()
+	{
+		return AddItemKeyHeld;
+	}
+
 	void RecipeBrowserModule::OnMouseInput(MouseInputEvent event) {
 		mposX = event.x;
 		mposY = event.y;
@@ -249,6 +270,20 @@ namespace TMI {
 			RecipeBrowserModule::getInstance().cleanup();
 			});
 		RegisterHooks(this);
+		Amethyst::GetEventBus().AddListener<RegisterInputsEvent>([&](RegisterInputsEvent ev) {
+			Amethyst::InputManager& input = ev.inputManager;
+			auto& action = input.RegisterNewInput("tmi.cheat_add_item", { 'C' }, true, Amethyst::KeybindContext::Screen);
+
+			action.addButtonDownHandler([](FocusImpact, ClientInstance&) {
+				AddItemKeyHeld = true;
+				return Amethyst::InputPassthrough::Passthrough;
+				});
+
+			action.addButtonUpHandler([](FocusImpact, ClientInstance&) {
+				AddItemKeyHeld = false;
+				return Amethyst::InputPassthrough::Passthrough;
+				});
+			});
 	}
 
 	void RecipeBrowserModule::showRecipesWindow()
@@ -542,9 +577,22 @@ namespace TMI {
 		self->registerButtonInteractedHandler(StringToNameId("tmi_overlay_slot_pressed"), [&](UIPropertyBag* mPropertyBag) {
 			if (mPropertyBag != nullptr && !mPropertyBag->mJsonValue.isNull() && mPropertyBag->mJsonValue.isObject()) {
 				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt() + (recipeMod->mOverlayPage * recipeMod->mOverlayItemPerPage);
+
+
 				if (id > -1 && id < recipeMod->overlayItemCount()) {
 					ItemStack stack = recipeMod->getOverlayItem(id);
-					if (recipeMod->setRecipesForItem(*stack.getItem())) {
+					if (RecipeBrowserModule::getInstance().isCheatEnabled() && AddItemKeyHeld) {
+						ItemStack stack2 = ItemStack(stack);
+						stack2.mCount = stack.getItem()->mMaxStackSize;
+
+						auto localPlayer = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer();
+						auto serverPlayer = (ServerPlayer*)Amethyst::GetServerCtx().mMinecraft->getLevel()->fetchEntity(localPlayer->getUniqueID(), false);
+
+						serverPlayer->playerInventory->mInventory->add(stack2);
+						serverPlayer->sendInventory(true);
+						//localPlayer->playerInventory->mInventory->add(stack2);
+					}
+					else if (recipeMod->setRecipesForItem(*stack.getItem())) {
 						recipeMod->showRecipesWindow();
 					}
 				}
@@ -557,7 +605,15 @@ namespace TMI {
 				auto id = mPropertyBag->mJsonValue.get("#tmi_slot_id", Json::Value(-1)).asInt() + (recipeMod->mOverlayPage * recipeMod->mOverlayItemPerPage);
 				if (id > -1 && id < recipeMod->overlayItemCount()) {
 					ItemStack stack = recipeMod->getOverlayItem(id);
-					if (recipeMod->setRecipesFromItem(*stack.getItem())) {
+					if (RecipeBrowserModule::getInstance().isCheatEnabled() && AddItemKeyHeld) {
+						// Be wary, this runs on client side
+						auto localPlayer = Amethyst::GetClientCtx().mClientInstance->getLocalPlayer();
+						auto serverPlayer = (ServerPlayer*)Amethyst::GetServerCtx().mMinecraft->getLevel()->fetchEntity(localPlayer->getUniqueID(), false);
+
+						serverPlayer->playerInventory->mInventory->add(stack);
+						serverPlayer->sendInventory(true);
+					}
+					else if (recipeMod->setRecipesFromItem(*stack.getItem())) {
 						recipeMod->showRecipesWindow();
 					}
 				}
