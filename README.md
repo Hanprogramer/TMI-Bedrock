@@ -1,51 +1,20 @@
 # TMI-Bedrock
+A mod that adds useful menu to show recipes and how to get items in the game. Also has a cheat mode in Creative mode to get any items you wanted, very useful for testing. The name "Too Many Items" is inspired by a [mod of the same name by Marglyph](https://www.minecraftforum.net/forums/mapping-and-modding-java-edition/minecraft-mods/1272385-toomanyitems-the-inventory-editor-and-more-1-8)
 <p align="center">
     <img width="1280" height="640" alt="github-thumbnail" src="https://github.com/user-attachments/assets/ca62e9e6-2aaf-41b8-b618-586bb3690e37" />
 </p>
 
-
-A mod that gives useful informations about the game, especially for mods
-<img width="1918" height="996" alt="image" src="https://github.com/user-attachments/assets/ebf8cda1-5d31-481a-a8f0-3f9ff810da52" />
+# Screenshots
+<img width="1920" height="1004" alt="image" src="https://github.com/user-attachments/assets/47025d8e-a7ae-4371-9e6b-0b8b7ab05e09" />
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/20460389-e11c-4855-9402-3b8c9aa82ff4" />
 <img width="1920" height="1008" alt="Screenshot 2025-11-01 125942" src="https://github.com/user-attachments/assets/216769f3-a84c-4f64-9c60-8d2d300f91fd" />
 <img width="1920" height="1006" alt="Screenshot 2025-11-01 130028" src="https://github.com/user-attachments/assets/12471090-bd94-4bda-bc90-acb3ffc3ffb9" />
+(Addon showcased is [Lucky Block by Weizhi](https://www.curseforge.com/minecraft-bedrock/addons/lucky-block-by-weizhijs))
 
 # For players
 To install, you can do so by downloading from the releases page then put it in the launcher's mods folder
 
 # For developers
-## How to configure
-
-1. Open `xmake.lua` and configure the mod options:
-```
--- Mod Options
-local mod_name = "TMI-Bedrock" -- Replace with the name of your mod
-```
-
-2. Open `data/packs/RP/manifest.json` and replace the name, and generate the two new UUIDv4s [here](https://www.uuidgenerator.net/version4)
-
-3. Open `.github/build.yml` and replace the mod name
-```
-env:
-    MOD_NAME: TMI-Bedrock # Replace with your mod name
-```
-
-4. Open `mod.json` and fill in all the mod options there too.
-```
-{
-    "meta": {
-        "name": "TMI-Bedrock",
-        "version": "1.0.0",
-        "namespace": "amethyst_template",
-        "author": "FrederoxDev"
-    }
-}
-```
-
-5. Open `data/packs/RP/textures/item_texture.ts` and edit the project namespace to match the `mod.json`
-```
-const projectNamespace = "amethyst_template";
-```
-
 ## Building
 
 1. To generate a visual studio solution run the command:
