@@ -51,6 +51,10 @@ namespace TMI {
 	}
 
 	std::string RecipeBrowserModule::getItemTooltipText(ItemStack& stack) {
+		if (stack.isNull()) {
+			Log::Info("ItemStack is null");
+			return "";
+		}
 		Item& item = *stack.getItem();
 		std::string text;
 		ClientInstance& mc = *Amethyst::GetClientCtx().mClientInstance;
